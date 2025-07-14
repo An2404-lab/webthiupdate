@@ -591,118 +591,118 @@
                     question: `Let \\( T \\) be a transformation defined by <strong>rotation through \\( \\frac{\\pi}{6} \\)</strong> followed by <strong>reflection across the line \\( y = x \\)</strong>. Find the <strong>(2, 1)-entry</strong> of the matrix of \\( T \\).`,
                     options: ["\\frac{\\sqrt{3}}{2}", "\\frac{1}{2}", "\\frac{\\sqrt{3} - 1}{2}"],
                     answer: 0,
-                    solution: `<div class="solution-header"><h5>Lời giải chi tiết</h5><div class="solution-audio"><iframe width="300" height="60" src="https://vocaroo.com/embed/10dckh0j2pSz?autoplay=0" frameborder="0" allow="autoplay"></iframe><a href="https://voca.ro/10dckh0j2pSz" title="Vocaroo Voice Recorder" target="_blank">Xem trên Vocaroo</a></div></div>
-                                <p>Theo lý thuyết, phần tử \\(T_{21}\\) là thành phần thứ 2 của véc-tơ \\$T(\\vec{e}_1)\\$, với \\$\\vec{e}_1 = \\begin{pmatrix} 1 \\\\ 0 \\end{pmatrix}\\$).</p>
-                                <p class="method-title">1. Tác động lên véc-tơ cơ sở \\$\\vec{e}_1\\$</p>
-                                <p>a. <strong>Phép quay \\(R\\)</strong>: Quay \\$\\vec{e}_1\\$ một góc \\$\\pi/6\\$.</p>
+                    solution: `<h5>Lời giải chi tiết</h5>
+                                <p>Theo lý thuyết, phần tử \\(T_{21}\\) là thành phần thứ 2 của véc-tơ \\(T(\\vec{e}_1)\\), với \\(\\vec{e}_1 = \\begin{pmatrix} 1 \\\\ 0 \\end{pmatrix}\\).</p>
+                                <p class="method-title">1. Tác động lên véc-tơ cơ sở \\(\\vec{e}_1\\)</p>
+                                <p>a. <strong>Phép quay \\(R\\)</strong>: Quay \\(\\vec{e}_1\\) một góc \\(\\pi/6\\).</p>
                                 <p>\\[ R(\\vec{e}_1) = \\begin{bmatrix} \\cos(\\pi/6) & -\\sin(\\pi/6) \\\\ \\sin(\\pi/6) & \\cos(\\pi/6) \\end{bmatrix} \\begin{pmatrix} 1 \\\\ 0 \\end{pmatrix} = \\begin{pmatrix} \\frac{\\sqrt{3}}{2} \\\\ \\frac{1}{2} \\end{pmatrix} \\]</p>
                                 <p>Vậy, điểm trung gian \\( M = \\left( \\frac{\\sqrt{3}}{2}, \\frac{1}{2} \\right) \\).</p>
                                 <p class="method-title">2. Tác động lên phép phản xạ qua \\( y = x \\)</p>
-                                <p>a. Tìm hình chiếu vuông góc \\( N \\) của \\( M \\) lên đường thẳng \\$y = x\\$. Gọi \\$ N = (t, t) \\$.</p>
-                                <p>Véc-tơ \\$ \\vec{MN} = (t - \\frac{\\sqrt{3}}{2}, t - \\frac{1}{2}) \\$.</p>
-                                <p>Vì \\$ \\vec{MN} \\perp \\vec{u} = (1, 1) \\$, tích vô hướng bằng 0:</p>
+                                <p>a. Tìm hình chiếu vuông góc \\( N \\) của \\( M \\) lên đường thẳng \\(y = x\\). Gọi \\( N = (t, t) \\).</p>
+                                <p>Véc-tơ \\( \\vec{MN} = (t - \\frac{\\sqrt{3}}{2}, t - \\frac{1}{2}) \\).</p>
+                                <p>Vì \\( \\vec{MN} \\perp \\vec{u} = (1, 1) \\), tích vô hướng bằng 0:</p>
                                 <p>\\[ (t - \\frac{\\sqrt{3}}{2}) \\cdot 1 + (t - \\frac{1}{2}) \\cdot 1 = 0 \\implies 2t = \\frac{\\sqrt{3}}{2} + \\frac{1}{2} \\implies t = \\frac{\\sqrt{3} + 1}{4} \\]</p>
-                                <p>Vậy \\$ N = \\left( \\frac{\\sqrt{3} + 1}{4}, \\frac{\\sqrt{3} + 1}{4} \\right) \\$.</p>
-                                <p>b. Tìm tọa độ ảnh \\$ M' = (x', y') \\$ (với \\$ N \\$ là trung điểm của \\$ M \\$ và \\$M'\\$):</p>
+                                <p>Vậy \\( N = \\left( \\frac{\\sqrt{3} + 1}{4}, \\frac{\\sqrt{3} + 1}{4} \\right) \\).</p>
+                                <p>b. Tìm tọa độ ảnh \\( M' = (x', y') \\) (với \\( N \\) là trung điểm của \\( M \\) và \\( M' \\)):</p>
                                 <p>\\[ \\frac{\\frac{\\sqrt{3}}{2} + x'}{2} = \\frac{\\sqrt{3} + 1}{4} \\implies x' = \\frac{2(\\sqrt{3} + 1)}{4} - \\frac{\\sqrt{3}}{2} = \\frac{1}{2} \\]</p>
                                 <p>\\[ \\frac{\\frac{1}{2} + y'}{2} = \\frac{\\sqrt{3} + 1}{4} \\implies y' = \\frac{2(\\sqrt{3} + 1)}{4} - \\frac{1}{2} = \\frac{\\sqrt{3}}{2} \\]</p>
-                                <p>Vậy \\$T(\\vec{e}_1) = \\begin{pmatrix} \\frac{1}{2} \\\\ \\frac{\\sqrt{3}}{2} \\end{pmatrix} \\$. Cột đầu tiên của ma trận \\$T\\$ là \\$\\left( \\frac{1}{2}, \\frac{\\sqrt{3}}{2} \\right) \\$. Vậy, phần tử (2, 1) là \\$\\frac{\\sqrt{3}}{2}\\$).</p>`
+                                <p>Vậy \\( T(\\vec{e}_1) = \\begin{pmatrix} \\frac{1}{2} \\\\ \\frac{\\sqrt{3}}{2} \\end{pmatrix} \\). Cột đầu tiên của ma trận \\( T \\) là \\( \\left( \\frac{1}{2}, \\frac{\\sqrt{3}}{2} \\right) \\). Vậy, phần tử (2, 1) là \\(\\frac{\\sqrt{3}}{2}\\).</p>`
                 },
                 {
                     question: `Let \\( T \\) be the composition of <strong>reflection in the line \\( y = -x \\)</strong> followed by <strong>rotation by \\( \\pi/2 \\)</strong>. Determine the <strong>(2, 2)-entry</strong>.`,
                     options: ["1", "-1", "0"],
                     answer: 1,
-                    solution: `<div class="solution-header"><h5>Lời giải chi tiết</h5><div class="solution-audio"><iframe width="300" height="60" src="https://vocaroo.com/embed/10dckh0j2pSz?autoplay=0" frameborder="0" allow="autoplay"></iframe><a href="https://voca.ro/10dckh0j2pSz" title="Vocaroo Voice Recorder" target="_blank">Xem trên Vocaroo</a></div></div>
-                                <p>Phần tử \\$T_{22}\\$ là thành phần thứ 2 của véc-tơ \\$T(\\vec{e}_2)\\$, với \\$\\vec{e}_2 = \\begin{pmatrix} 0 \\\\ 1 \\end{pmatrix}\\$).</p>
-                                <p class="method-title">1. Tác động lên véc-tơ cơ sở \\$\\vec{e}_2\\$</p>
-                                <p>a. <strong>Phép phản xạ \\(F\\)</strong>: Phản xạ \\$\\vec{e}_2\\$ qua đường \\$y = -x\\$.</p>
-                                <p>Véc-tơ \\$\\vec{u} = (1, -1) \\$ là vectơ chỉ phương của đường thẳng. Gọi \\$N = (t, -t) \\$ là hình chiếu vuông góc.</p>
-                                <p>Véc-tơ \\$\\vec{MN} = (t - 0, -t - 1) \\$.</p>
-                                <p>Vì \\$\\vec{MN} \\perp \\vec{u} \\$, tích vô hướng bằng 0:</p>
+                    solution: `<h5>Lời giải chi tiết</h5>
+                                <p>Phần tử \\(T_{22}\\) là thành phần thứ 2 của véc-tơ \\(T(\\vec{e}_2)\\), với \\(\\vec{e}_2 = \\begin{pmatrix} 0 \\\\ 1 \\end{pmatrix}\\).</p>
+                                <p class="method-title">1. Tác động lên véc-tơ cơ sở \\(\\vec{e}_2\\)</p>
+                                <p>a. <strong>Phép phản xạ \\(F\\)</strong>: Phản xạ \\(\\vec{e}_2\\) qua đường \\( y = -x \\).</p>
+                                <p>Véc-tơ \\( \\vec{u} = (1, -1) \\) là vectơ chỉ phương của đường thẳng. Gọi \\( N = (t, -t) \\) là hình chiếu vuông góc.</p>
+                                <p>Véc-tơ \\( \\vec{MN} = (t - 0, -t - 1) \\).</p>
+                                <p>Vì \\( \\vec{MN} \\perp \\vec{u} \\), tích vô hướng bằng 0:</p>
                                 <p>\\[ (t - 0) \\cdot 1 + (-t - 1) \\cdot (-1) = 0 \\implies t + t + 1 = 0 \\implies 2t = -1 \\implies t = -\\frac{1}{2} \\]</p>
-                                <p>Vậy \\$N = \\left( -\\frac{1}{2}, \\frac{1}{2} \\right) \\$.</p>
-                                <p>b. Tìm tọa độ ảnh \\$M' = (x', y') \\$ (với \\$N\\$ là trung điểm của \\$(0, 1) \\$ và \\$M'\\$):</p>
+                                <p>Vậy \\( N = \\left( -\\frac{1}{2}, \\frac{1}{2} \\right) \\).</p>
+                                <p>b. Tìm tọa độ ảnh \\( M' = (x', y') \\) (với \\( N \\) là trung điểm của \\( (0, 1) \\) và \\( M' \\)):</p>
                                 <p>\\[ \\frac{0 + x'}{2} = -\\frac{1}{2} \\implies x' = -1 \\]</p>
                                 <p>\\[ \\frac{1 + y'}{2} = \\frac{1}{2} \\implies y' = 0 \\]</p>
-                                <p>Vậy \\$F(\\vec{e}_2) = \\begin{pmatrix} -1 \\\\ 0 \\end{pmatrix} \\$. </p>
-                                <p class="method-title">2. Tác động lên phép quay qua \\$\\pi/2\\$</p>
-                                <p>Ma trận quay \\$R = \\begin{bmatrix} 0 & -1 \\\\ 1 & 0 \\end{bmatrix} \\$. </p>
+                                <p>Vậy \\( F(\\vec{e}_2) = \\begin{pmatrix} -1 \\\\ 0 \\end{pmatrix} \\). </p>
+                                <p class="method-title">2. Tác động lên phép quay qua \\(\\pi/2\\)</p>
+                                <p>Ma trận quay \\( R = \\begin{bmatrix} 0 & -1 \\\\ 1 & 0 \\end{bmatrix} \\). </p>
                                 <p>\\[ T(\\vec{e}_2) = R \\begin{pmatrix} -1 \\\\ 0 \\end{pmatrix} = \\begin{pmatrix} 0 \\cdot (-1) + (-1) \\cdot 0 \\\\ 1 \\cdot (-1) + 0 \\cdot 0 \\end{pmatrix} = \\begin{pmatrix} 0 \\\\ -1 \\end{pmatrix} \\]</p>
-                                <p>Cột thứ hai của ma trận \\$T\\$ là \\$(0, -1) \\$. Vậy, phần tử (2, 2) là \\$-1\\$.</p>`
+                                <p>Cột thứ hai của ma trận \\( T \\) là \\( (0, -1) \\). Vậy, phần tử (2, 2) là \\(-1\\).</p>`
                 },
                 {
                     question: `Let \\( T \\) be defined as <strong>a reflection in the line \\( y = 3x \\)</strong> followed by <strong>rotation through \\( \\pi/4 \\)</strong>. Find the <strong>(1, 2)-entry</strong>.`,
                     options: ["\\frac{7\\sqrt{2}}{10}", "\\frac{-3\\sqrt{2}}{5}", "\\frac{-\\sqrt{2}}{10}"],
                     answer: 2,
-                    solution: `<div class="solution-header"><h5>Lời giải chi tiết</h5><div class="solution-audio"><iframe width="300" height="60" src="https://vocaroo.com/embed/10dckh0j2pSz?autoplay=0" frameborder="0" allow="autoplay"></iframe><a href="https://voca.ro/10dckh0j2pSz" title="Vocaroo Voice Recorder" target="_blank">Xem trên Vocaroo</a></div></div>
-                                <p>Phần tử \\$T_{12}\\$ là thành phần thứ 1 của véc-tơ \\$T(\\vec{e}_2)\\$, với \\$\\vec{e}_2 = \\begin{pmatrix} 0 \\\\ 1 \\end{pmatrix}\\$).</p>
-                                <p class="method-title">1. Tác động lên véc-tơ cơ sở \\$\\vec{e}_2\\$</p>
-                                <p>a. <strong>Phép phản xạ \\(F\\)</strong>: Phản xạ \\$\\vec{e}_2\\$ qua đường \\$y = 3x\\$.</p>
-                                <p>Véc-tơ \\$\\vec{u} = (1, 3) \\$ là vectơ chỉ phương của đường thẳng. Gọi \\$N = (t, 3t) \\$ là hình chiếu vuông góc.</p>
-                                <p>Véc-tơ \\$\\vec{MN} = (t - 0, 3t - 1) \\$.</p>
-                                <p>Vì \\$\\vec{MN} \\perp \\vec{u} \\$, tích vô hướng bằng 0:</p>
+                    solution: `<h5>Lời giải chi tiết</h5>
+                                <p>Phần tử \\(T_{12}\\) là thành phần thứ 1 của véc-tơ \\(T(\\vec{e}_2)\\), với \\(\\vec{e}_2 = \\begin{pmatrix} 0 \\\\ 1 \\end{pmatrix}\\).</p>
+                                <p class="method-title">1. Tác động lên véc-tơ cơ sở \\(\\vec{e}_2\\)</p>
+                                <p>a. <strong>Phép phản xạ \\(F\\)</strong>: Phản xạ \\(\\vec{e}_2\\) qua đường \\(y = 3x\\).</p>
+                                <p>Véc-tơ \\( \\vec{u} = (1, 3) \\) là vectơ chỉ phương của đường thẳng. Gọi \\( N = (t, 3t) \\) là hình chiếu vuông góc.</p>
+                                <p>Véc-tơ \\( \\vec{MN} = (t - 0, 3t - 1) \\).</p>
+                                <p>Vì \\( \\vec{MN} \\perp \\vec{u} \\), tích vô hướng bằng 0:</p>
                                 <p>\\[ (t - 0) \\cdot 1 + (3t - 1) \\cdot 3 = 0 \\implies t + 9t - 3 = 0 \\implies 10t = 3 \\implies t = \\frac{3}{10} \\]</p>
-                                <p>Vậy \\$N = \\left( \\frac{3}{10}, \\frac{9}{10} \\right) \\$.</p>
-                                <p>b. Tìm tọa độ ảnh \\$M' = (x', y') \\$ (với \\$N\\$ là trung điểm của \\$(0, 1) \\$ và \\$M'\\$):</p>
+                                <p>Vậy \\( N = \\left( \\frac{3}{10}, \\frac{9}{10} \\right) \\).</p>
+                                <p>b. Tìm tọa độ ảnh \\( M' = (x', y') \\) (với \\( N \\) là trung điểm của \\( (0, 1) \\) và \\( M' \\)):</p>
                                 <p>\\[ \\frac{0 + x'}{2} = \\frac{3}{10} \\implies x' = \\frac{6}{10} = \\frac{3}{5} \\]</p>
                                 <p>\\[ \\frac{1 + y'}{2} = \\frac{9}{10} \\implies 1 + y' = \\frac{18}{10} \\implies y' = \\frac{8}{10} = \\frac{4}{5} \\]</p>
-                                <p>Vậy \\$F(\\vec{e}_2) = \\begin{pmatrix} \\frac{3}{5} \\\\ \\frac{4}{5} \\end{pmatrix} \\$. </p>
-                                <p class="method-title">2. Tác động lên phép quay qua \\$\\pi/4\\$</p>
-                                <p>Ma trận quay \\$R = \\begin{bmatrix} \\frac{\\sqrt{2}}{2} & -\\frac{\\sqrt{2}}{2} \\\\ \\frac{\\sqrt{2}}{2} & \\frac{\\sqrt{2}}{2} \\end{bmatrix} \\$. </p>
+                                <p>Vậy \\( F(\\vec{e}_2) = \\begin{pmatrix} \\frac{3}{5} \\\\ \\frac{4}{5} \\end{pmatrix} \\). </p>
+                                <p class="method-title">2. Tác động lên phép quay qua \\(\\pi/4\\)</p>
+                                <p>Ma trận quay \\( R = \\begin{bmatrix} \\frac{\\sqrt{2}}{2} & -\\frac{\\sqrt{2}}{2} \\\\ \\frac{\\sqrt{2}}{2} & \\frac{\\sqrt{2}}{2} \\end{bmatrix} \\). </p>
                                 <p>\\[ T(\\vec{e}_2) = R \\begin{pmatrix} \\frac{3}{5} \\\\ \\frac{4}{5} \\end{pmatrix} = \\begin{pmatrix} \\frac{\\sqrt{2}}{2} \\cdot \\frac{3}{5} - \\frac{\\sqrt{2}}{2} \\cdot \\frac{4}{5} \\\\ \\frac{\\sqrt{2}}{2} \\cdot \\frac{3}{5} + \\frac{\\sqrt{2}}{2} \\cdot \\frac{4}{5} \\end{pmatrix} = \\begin{pmatrix} \\frac{\\sqrt{2} (3 - 4)}{10} \\\\ \\frac{\\sqrt{2} (3 + 4)}{10} \\end{pmatrix} = \\begin{pmatrix} -\\frac{\\sqrt{2}}{10} \\\\ \\frac{7\\sqrt{2}}{10} \\end{pmatrix} \\]</p>
-                                <p>Thành phần thứ nhất của véc-tơ kết quả là \\$\\frac{-\\sqrt{2}}{10}\\$). Đây chính là phần tử (1, 2).</p>`
+                                <p>Thành phần thứ nhất của véc-tơ kết quả là \\(\\frac{-\\sqrt{2}}{10}\\). Đây chính là phần tử (1, 2).</p>`
                 },
                 {
                     question: `Let \\( T\\) be a transformation consisting of a <strong>rotation of angle \\( \\pi \\)</strong> followed by <strong>reflection in the x-axis</strong>. What is the <strong>(1, 1)-entry</strong>?`,
                     options: ["1", "-1", "0"],
                     answer: 1,
-                    solution: `<div class="solution-header"><h5>Lời giải chi tiết</h5><div class="solution-audio"><iframe width="300" height="60" src="https://vocaroo.com/embed/10dckh0j2pSz?autoplay=0" frameborder="0" allow="autoplay"></iframe><a href="https://voca.ro/10dckh0j2pSz" title="Vocaroo Voice Recorder" target="_blank">Xem trên Vocaroo</a></div></div>
-                                <p>Phần tử \\$T_{11}\\$ là thành phần thứ 1 của véc-tơ \\$T(\\vec{e}_1)\\$, với \\$\\vec{e}_1 = \\begin{pmatrix} 1 \\\\ 0 \\end{pmatrix}\\$).</p>
-                                <p class="method-title">1. Tác động lên véc-tơ cơ sở \\$\\vec{e}_1\\$</p>
-                                <p>a. <strong>Phép quay \\(R\\)</strong>: Quay \\$\\vec{e}_1\\$ một góc \\$\\pi\\$.</p>
-                                <p>Ma trận quay \\$R = \\begin{bmatrix} -1 & 0 \\\\ 0 & -1 \\end{bmatrix} \\$. </p>
+                    solution: `<h5>Lời giải chi tiết</h5>
+                                <p>Phần tử \\(T_{11}\\) là thành phần thứ 1 của véc-tơ \\(T(\\vec{e}_1)\\), với \\(\\vec{e}_1 = \\begin{pmatrix} 1 \\\\ 0 \\end{pmatrix}\\).</p>
+                                <p class="method-title">1. Tác động lên véc-tơ cơ sở \\(\\vec{e}_1\\)</p>
+                                <p>a. <strong>Phép quay \\(R\\)</strong>: Quay \\(\\vec{e}_1\\) một góc \\(\\pi\\).</p>
+                                <p>Ma trận quay \\( R = \\begin{bmatrix} -1 & 0 \\\\ 0 & -1 \\end{bmatrix} \\). </p>
                                 <p>\\[ R(\\vec{e}_1) = \\begin{bmatrix} -1 & 0 \\\\ 0 & -1 \\end{bmatrix} \\begin{pmatrix} 1 \\\\ 0 \\end{pmatrix} = \\begin{pmatrix} -1 \\\\ 0 \\end{pmatrix} \\]</p>
-                                <p>Vậy, điểm trung gian \\$M = \\left( -1, 0 \\right) \\$.</p>
-                                <p class="method-title">2. Tác động lên phép phản xạ qua trục \\$x\\$</p>
-                                <p>a. Tìm hình chiếu vuông góc \\$N\\$ của \\$M\\$ lên trục \\$x\\$ (y = 0). Vì \\$M\\$ đã nằm trên trục \\$x\\$, \\$N = M = (-1, 0) \\$.</p>
-                                <p>b. Tìm tọa độ ảnh \\$M' = (x', y') \\$ (phản xạ qua trục \\$x\\$ giữ hoành độ, đổi dấu tung độ):</p>
+                                <p>Vậy, điểm trung gian \\( M = \\left( -1, 0 \\right) \\).</p>
+                                <p class="method-title">2. Tác động lên phép phản xạ qua trục \\( x \\)</p>
+                                <p>a. Tìm hình chiếu vuông góc \\( N \\) của \\( M \\) lên trục \\( x \\) (y = 0). Vì \\( M \\) đã nằm trên trục \\( x \\), \\( N = M = (-1, 0) \\).</p>
+                                <p>b. Tìm tọa độ ảnh \\( M' = (x', y') \\) (phản xạ qua trục \\( x \\) giữ hoành độ, đổi dấu tung độ):</p>
                                 <p>\\[ y' = -0 = 0 \\]</p>
-                                <p>Vậy \\$T(\\vec{e}_1) = \\begin{pmatrix} -1 \\\\ 0 \\end{pmatrix} \\$. Cột đầu tiên của ma trận \\$T\\$ là \\$(-1, 0) \\$. Vậy, phần tử (1, 1) là \\$-1\\$.</p>`
+                                <p>Vậy \\( T(\\vec{e}_1) = \\begin{pmatrix} -1 \\\\ 0 \\end{pmatrix} \\). Cột đầu tiên của ma trận \\( T \\) là \\( (-1, 0) \\). Vậy, phần tử (1, 1) là \\(-1\\).</p>`
                 },
                 {
-                    question: `Let \\( T \\) be a transformation defined as <strong>rotation through \\( \\pi/3 \\)</strong> followed by <strong>reflection in the line \\( y = 2x \\)</strong>. What is the <strong>trace</strong> of the matrix of \\$T\\$?`,
+                    question: `Let \\( T \\) be a transformation defined as <strong>rotation through \\( \\pi/3 \\)</strong> followed by <strong>reflection in the line \\( y = 2x \\)</strong>. What is the <strong>trace</strong> of the matrix of \\(T\\)?`,
                     options: ["1", "-1/5", "0"],
                     answer: 2,
-                    solution: `<div class="solution-header"><h5>Lời giải chi tiết</h5><div class="solution-audio"><iframe width="300" height="60" src="https://vocaroo.com/embed/10dckh0j2pSz?autoplay=0" frameborder="0" allow="autoplay"></iframe><a href="https://voca.ro/10dckh0j2pSz" title="Vocaroo Voice Recorder" target="_blank">Xem trên Vocaroo</a></div></div>
-                                <p>Trace của ma trận \\$T\\$ là tổng \\$\\text{tr}(T) = T_{11} + T_{22}\\$). Ta cần tìm thành phần thứ 1 của \\$T(\\vec{e}_1)\\$ và thành phần thứ 2 của \\$T(\\vec{e}_2)\\$).</p>
-                                <p class="method-title">1. Tìm \\$T_{11}\\$ qua \\$T(\\vec{e}_1)\\$</p>
-                                <p>a. <strong>Phép quay \\(R\\)</strong>: Quay \\$\\vec{e}_1 = \\begin{pmatrix} 1 \\\\ 0 \\end{pmatrix}\\$ một góc \\$\\pi/3\\$.</p>
+                    solution: `<h5>Lời giải chi tiết</h5>
+                                <p>Trace của ma trận \\(T\\) là tổng \\(\\text{tr}(T) = T_{11} + T_{22}\\). Ta cần tìm thành phần thứ 1 của \\(T(\\vec{e}_1)\\) và thành phần thứ 2 của \\(T(\\vec{e}_2)\\).</p>
+                                <p class="method-title">1. Tìm \\(T_{11}\\) qua \\(T(\\vec{e}_1)\\)</p>
+                                <p>a. <strong>Phép quay \\(R\\)</strong>: Quay \\(\\vec{e}_1 = \\begin{pmatrix} 1 \\\\ 0 \\end{pmatrix}\\) một góc \\(\\pi/3\\).</p>
                                 <p>\\[ R(\\vec{e}_1) = \\begin{bmatrix} \\cos(\\pi/3) & -\\sin(\\pi/3) \\\\ \\sin(\\pi/3) & \\cos(\\pi/3) \\end{bmatrix} \\begin{pmatrix} 1 \\\\ 0 \\end{pmatrix} = \\begin{pmatrix} \\frac{1}{2} \\\\ \\frac{\\sqrt{3}}{2} \\end{pmatrix} \\]</p>
-                                <p>Vậy, điểm trung gian \\$M = \\left( \\frac{1}{2}, \\frac{\\sqrt{3}}{2} \\right) \\$.</p>
-                                <p class="method-title">2. Tác động lên phép phản xạ qua \\$y = 2x\\$</p>
-                                <p>a. Tìm hình chiếu vuông góc \\$N\\$ của \\$M\\$ lên đường thẳng \\$y = 2x\\$. Gọi \\$N = (t, 2t) \\$.</p>
-                                <p>Véc-tơ \\$\\vec{MN} = (t - \\frac{1}{2}, 2t - \\frac{\\sqrt{3}}{2}) \\$.</p>
-                                <p>Véc-tơ chỉ phương của \\$y = 2x\\$ là \\$\\vec{u} = (1, 2) \\$. Tích vô hướng bằng 0:</p>
+                                <p>Vậy, điểm trung gian \\( M = \\left( \\frac{1}{2}, \\frac{\\sqrt{3}}{2} \\right) \\).</p>
+                                <p class="method-title">2. Tác động lên phép phản xạ qua \\(y = 2x\\)</p>
+                                <p>a. Tìm hình chiếu vuông góc \\( N \\) của \\( M \\) lên đường thẳng \\(y = 2x\\). Gọi \\( N = (t, 2t) \\).</p>
+                                <p>Véc-tơ \\( \\vec{MN} = (t - \\frac{1}{2}, 2t - \\frac{\\sqrt{3}}{2}) \\).</p>
+                                <p>Véc-tơ chỉ phương của \\( y = 2x \\) là \\( \\vec{u} = (1, 2) \\). Tích vô hướng bằng 0:</p>
                                 <p>\\[ (t - \\frac{1}{2}) \\cdot 1 + (2t - \\frac{\\sqrt{3}}{2}) \\cdot 2 = 0 \\implies t - \\frac{1}{2} + 4t - \\sqrt{3} = 0 \\implies 5t = \\frac{1 + \\sqrt{3}}{2} \\implies t = \\frac{1 + \\sqrt{3}}{10} \\]</p>
-                                <p>Vậy \\$N = \\left( \\frac{1 + \\sqrt{3}}{10}, \\frac{2 + 2\\sqrt{3}}{10} \\right) \\$.</p>
-                                <p>b. Tìm tọa độ ảnh \\$M' = (x', y') \\$ (với \\$N\\$ là trung điểm của \\$M\\$ và \\$M'\\$):</p>
+                                <p>Vậy \\( N = \\left( \\frac{1 + \\sqrt{3}}{10}, \\frac{2 + 2\\sqrt{3}}{10} \\right) \\).</p>
+                                <p>b. Tìm tọa độ ảnh \\( M' = (x', y') \\) (với \\( N \\) là trung điểm của \\( M \\) và \\( M' \\)):</p>
                                 <p>\\[ \\frac{\\frac{1}{2} + x'}{2} = \\frac{1 + \\sqrt{3}}{10} \\implies \\frac{1}{2} + x' = \\frac{2 + 2\\sqrt{3}}{10} \\implies x' = \\frac{2 + 2\\sqrt{3} - 5}{10} = \\frac{-3 + 2\\sqrt{3}}{10} \\]</p>
                                 <p>\\[ \\frac{\\frac{\\sqrt{3}}{2} + y'}{2} = \\frac{2 + 2\\sqrt{3}}{10} \\implies \\frac{\\sqrt{3}}{2} + y' = \\frac{4 + 4\\sqrt{3}}{10} \\implies y' = \\frac{4 + 4\\sqrt{3} - 5\\sqrt{3}}{10} = \\frac{4 - \\sqrt{3}}{10} \\]</p>
-                                <p>Vậy \\$T(\\vec{e}_1) = \\begin{pmatrix} \\frac{-3 + 2\\sqrt{3}}{10} \\\\ \\frac{4 - \\sqrt{3}}{10} \\end{pmatrix} \\$, \\$T_{11} = \\frac{-3 + 2\\sqrt{3}}{10} \\$.</p>
-                                <p class="method-title">3. Tìm \\$T_{22}\\$ qua \\$T(\\vec{e}_2)\\$</p>
-                                <p>a. <strong>Phép quay \\(R\\)</strong>: Quay \\$\\vec{e}_2 = \\begin{pmatrix} 0 \\\\ 1 \\end{pmatrix}\\$ một góc \\$\\pi/3\\$.</p>
+                                <p>Vậy \\( T(\\vec{e}_1) = \\begin{pmatrix} \\frac{-3 + 2\\sqrt{3}}{10} \\\\ \\frac{4 - \\sqrt{3}}{10} \\end{pmatrix} \\), \\( T_{11} = \\frac{-3 + 2\\sqrt{3}}{10} \\).</p>
+                                <p class="method-title">3. Tìm \\(T_{22}\\) qua \\(T(\\vec{e}_2)\\)</p>
+                                <p>a. <strong>Phép quay \\(R\\)</strong>: Quay \\(\\vec{e}_2 = \\begin{pmatrix} 0 \\\\ 1 \\end{pmatrix}\\) một góc \\(\\pi/3\\).</p>
                                 <p>\\[ R(\\vec{e}_2) = \\begin{bmatrix} \\cos(\\pi/3) & -\\sin(\\pi/3) \\\\ \\sin(\\pi/3) & \\cos(\\pi/3) \\end{bmatrix} \\begin{pmatrix} 0 \\\\ 1 \\end{pmatrix} = \\begin{pmatrix} -\\frac{\\sqrt{3}}{2} \\\\ \\frac{1}{2} \\end{pmatrix} \\]</p>
-                                <p>Vậy, điểm trung gian \\$M = \\left( -\\frac{\\sqrt{3}}{2}, \\frac{1}{2} \\right) \\$.</p>
-                                <p class="method-title">4. Tác động lên phép phản xạ qua \\$y = 2x\\$</p>
-                                <p>a. Tìm hình chiếu vuông góc \\$N\\$ của \\$M\\$ lên đường thẳng \\$y = 2x\\$. Gọi \\$N = (t, 2t) \\$.</p>
-                                <p>Véc-tơ \\$\\vec{MN} = (t + \\frac{\\sqrt{3}}{2}, 2t - \\frac{1}{2}) \\$.</p>
+                                <p>Vậy, điểm trung gian \\( M = \\left( -\\frac{\\sqrt{3}}{2}, \\frac{1}{2} \\right) \\).</p>
+                                <p class="method-title">4. Tác động lên phép phản xạ qua \\(y = 2x\\)</p>
+                                <p>a. Tìm hình chiếu vuông góc \\( N \\) của \\( M \\) lên đường thẳng \\(y = 2x\\). Gọi \\( N = (t, 2t) \\).</p>
+                                <p>Véc-tơ \\( \\vec{MN} = (t + \\frac{\\sqrt{3}}{2}, 2t - \\frac{1}{2}) \\).</p>
                                 <p>Tích vô hướng bằng 0:</p>
                                 <p>\\[ (t + \\frac{\\sqrt{3}}{2}) \\cdot 1 + (2t - \\frac{1}{2}) \\cdot 2 = 0 \\implies t + \\frac{\\sqrt{3}}{2} + 4t - 1 = 0 \\implies 5t = 1 - \\frac{\\sqrt{3}}{2} \\implies t = \\frac{2 - \\sqrt{3}}{10} \\]</p>
-                                <p>Vậy \\$N = \\left( \\frac{2 - \\sqrt{3}}{10}, \\frac{4 - 2\\sqrt{3}}{10} \\right) \\$. </p>
-                                <p>b. Tìm tọa độ ảnh \\$M' = (x', y') \\$):</p>
+                                <p>Vậy \\( N = \\left( \\frac{2 - \\sqrt{3}}{10}, \\frac{4 - 2\\sqrt{3}}{10} \\right) \\). </p>
+                                <p>b. Tìm tọa độ ảnh \\( M' = (x', y') \\):</p>
                                 <p>\\[ \\frac{-\\frac{\\sqrt{3}}{2} + x'}{2} = \\frac{2 - \\sqrt{3}}{10} \\implies -\\frac{\\sqrt{3}}{2} + x' = \\frac{4 - 2\\sqrt{3}}{10} \\implies x' = \\frac{4 - 2\\sqrt{3} + 5\\sqrt{3}}{10} = \\frac{4 + 3\\sqrt{3}}{10} \\]</p>
                                 <p>\\[ \\frac{\\frac{1}{2} + y'}{2} = \\frac{4 - 2\\sqrt{3}}{10} \\implies \\frac{1}{2} + y' = \\frac{8 - 4\\sqrt{3}}{10} \\implies y' = \\frac{8 - 4\\sqrt{3} - 5}{10} = \\frac{3 - 4\\sqrt{3}}{10} \\]</p>
-                                <p>Vậy \\$T(\\vec{e}_2) = \\begin{pmatrix} \\frac{4 + 3\\sqrt{3}}{10} \\\\ \\frac{3 - 4\\sqrt{3}}{10} \\end{pmatrix} \\$, \\$T_{22} = \\frac{3 - 4\\sqrt{3}}{10} \\$. </p>
+                                <p>Vậy \\( T(\\vec{e}_2) = \\begin{pmatrix} \\frac{4 + 3\\sqrt{3}}{10} \\\\ \\frac{3 - 4\\sqrt{3}}{10} \\end{pmatrix} \\), \\( T_{22} = \\frac{3 - 4\\sqrt{3}}{10} \\). </p>
                                 <p class="method-title">5. Tính Trace</p>
                                 <p>\\[ \\text{tr}(T) = T_{11} + T_{22} = \\frac{-3 + 2\\sqrt{3}}{10} + \\frac{3 - 4\\sqrt{3}}{10} = \\frac{-3 + 2\\sqrt{3} + 3 - 4\\sqrt{3}}{10} = \\frac{0}{10} = 0 \\]</p>`
                 }
