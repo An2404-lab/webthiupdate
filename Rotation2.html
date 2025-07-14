@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Học và Luyện tập: Hợp các phép quay và phản xạ</title>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            startup: {
+                ready: () => {
+                    MathJax.startup.defaultReady();
+                    MathJax.typesetPromise();
+                }
+            }
+        };
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -44,8 +65,8 @@
             display: flex;
             width: 100%;
             height: 100%;
-            max-width: 1800px; /* Giới hạn chiều rộng tối đa */
-            margin: 0 auto; /* Căn giữa trên màn hình lớn */
+            max-width: 1800px;
+            margin: 0 auto;
             padding: 24px;
             box-sizing: border-box;
             gap: 24px;
@@ -79,130 +100,167 @@
         h3 { font-size: 1.3em; margin-bottom: 18px; }
         h4 { font-size: 1.15em; color: var(--accent-color); margin-bottom: 10px; }
 
-        /* --- PHẦN SLIDER BÀI GIẢNG ĐÃ CHỈNH SỬA --- */
-        .slider-section { 
+        /* --- PHẦN CONTENT SELECTOR --- */
+        .content-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .content-btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            background-color: transparent;
+            color: var(--accent-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .content-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .content-btn:hover:not(.active) {
+            background-color: var(--accent-hover);
+            color: white;
+        }
+
+        .content-section {
             margin-bottom: 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        
-        .slider-wrapper {
+
+        .content-wrapper {
             width: 100%;
-            max-width: 800px; /* Giới hạn chiều rộng tối đa */
+            max-width: 800px;
             margin: 0 auto;
         }
-        
-        .slider-header { 
+
+        .content-header {
             width: 100%;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
         }
 
-        .slider-container { 
+        .slider-container, .video-container {
             width: 100%;
-            aspect-ratio: 16/9; /* Giữ tỷ lệ 16:9 */
-            overflow: hidden; 
-            position: relative; 
-            background-color: #1f2937; 
-            border-radius: 16px; 
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            position: relative;
+            background-color: #1f2937;
+            border-radius: 16px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.15);
             transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        .slides-wrapper { 
-            display: flex; 
-            height: 100%; 
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+        .slides-wrapper {
+            display: flex;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .slide { 
-            flex: 0 0 100%; 
-            width: 100%; 
-            height: 100%; 
-            box-sizing: border-box; 
-            padding: 20px 30px; /* Giảm padding so với ban đầu */
-            color: #e5e7eb; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            text-align: center; 
-            opacity: 0; 
-            transform: translateX(20px); 
-            transition: opacity 0.6s ease, transform 0.6s ease; 
+        .slide {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 20px 30px;
+            color: #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
         }
 
         .slide.active-slide { opacity: 1; transform: translateX(0); }
-        
-        .slide .slide-title { 
-            font-size: 1.5em; /* Giảm kích thước tiêu đề */
-            font-weight: 700; 
-            color: #d1d5db; 
-            border-bottom: 1px solid #4b5563; 
-            margin-bottom: 15px; 
-            padding-bottom: 10px; 
+
+        .slide .slide-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #d1d5db;
+            border-bottom: 1px solid #4b5563;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
         }
-        
-        .slide p, .slide ul { 
-            text-align: left; 
-            max-width: 95%; 
-            font-size: 1em; /* Kích thước chữ nhỏ hơn */
+
+        .slide p, .slide ul {
+            text-align: left;
+            max-width: 95%;
+            font-size: 1em;
             margin: 10px 0;
         }
-        
-        .slide .info-block { 
-            background-color: rgba(255, 255, 255, 0.05); 
-            padding: 12px 15px; /* Giảm padding */
-            border-radius: 8px; 
-            margin-top: 12px; 
-            border-left: 4px solid var(--accent-color); 
-            text-align: left; 
-            width: 100%; 
-            box-sizing: border-box; 
+
+        .slide .info-block {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border-left: 4px solid var(--accent-color);
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .slide .result-block { 
-            background-color: rgba(34, 197, 94, 0.1); 
-            border-left: 4px solid var(--success-color); 
-            color: #a7f3d0; 
+        .slide .result-block {
+            background-color: rgba(34, 197, 94, 0.1);
+            border-left: 4px solid var(--success-color);
+            color: #a7f3d0;
         }
 
-        .slider-nav { 
-            position: absolute; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            width: 100%; 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 0 15px; 
-            box-sizing: border-box; 
-            opacity: 0; 
-            transition: opacity 0.3s ease; 
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .slider-container:hover .slider-nav { opacity: 1; }
-        
-        .slider-nav button { 
-            background-color: rgba(0, 0, 0, 0.4); 
-            color: white; 
-            border: none; 
-            width: 40px; 
-            height: 40px; 
-            border-radius: 50%; 
-            cursor: pointer; 
-            font-size: 20px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            transition: background-color 0.3s, transform 0.3s; 
+
+        .slider-nav button {
+            background-color: rgba(0, 0, 0, 0.4);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
-        .slider-nav button:hover { 
-            background-color: rgba(0, 0, 0, 0.7); 
-            transform: scale(1.1); 
+        .slider-nav button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+            transform: scale(1.1);
+        }
+
+        .video-container iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
         }
 
         .hidden { display: none !important; }
@@ -261,7 +319,7 @@
         }
         
         @media (max-width: 900px) {
-            .slider-container {
+            .slider-container, .video-container {
                 max-width: 100%;
             }
         }
@@ -269,10 +327,10 @@
         @media (max-width: 768px) {
             body { font-size: 15px; }
             .main-container, .panel { padding: 15px; }
-            h2 { font-size: 1.3em; } 
+            h2 { font-size: 1.3em; }
             h3 { font-size: 1.15em; }
-            .slider-container {
-                aspect-ratio: 4/3; /* Tỷ lệ khác cho mobile */
+            .slider-container, .video-container {
+                aspect-ratio: 4/3;
             }
             .slide {
                 padding: 15px 20px;
@@ -286,24 +344,33 @@
 <body>
     <div class="main-container">
         <div class="panel panel-left">
-            <div class="slider-section">
-                <div class="slider-wrapper">
-                    <div class="slider-header">
-                        <h2>Bài giảng Trực quan</h2>
-                        <span class="toggle-slider" onclick="toggleSliderVisibility()">[Ẩn]</span>
+            <div class="content-section">
+                <div class="content-wrapper">
+                    <div class="content-selector">
+                        <button class="content-btn active" onclick="showContent('slides')">Slide</button>
+                        <button class="content-btn" onclick="showContent('video')">Bài giảng video</button>
                     </div>
-                    <div id="sliderComponent" class="slider-container">
+                    <div class="content-header">
+                        <h2 id="contentTitle">Bài giảng Trực quan</h2>
+                        <span class="toggle-content" onclick="toggleContentVisibility()">[Ẩn]</span>
+                    </div>
+                    <div id="slidesComponent" class="slider-container">
                         <div class="slides-wrapper"></div>
                         <div class="slider-nav">
                             <button class="prev-btn" onclick="prevSlide()">❮</button>
                             <button class="next-btn" onclick="nextSlide()">❯</button>
                         </div>
                     </div>
+                    <div id="videoComponent" class="video-container hidden">
+                        <div style="position:relative; width:100%; height:0px; padding-bottom:56.250%">
+                            <iframe allow="fullscreen" allowfullscreen height="100%" src="https://www.youtube.com/embed/IE5x6oqifS0" width="100%" style="border:none; width:100%; height:100%; position:absolute; left:0px; top:0px; overflow:hidden;"></iframe>
+                        </div>
+                    </div>
                 </div>
             </div>
             
             <div class="lecture-container">
-                 <h2>Bài giảng Chi tiết</h2>
+                <h2>Bài giảng Chi tiết</h2>
                 <div class="lecture-content">
                     <h4>Bài toán</h4>
                     <p>Cho ánh xạ tuyến tính \( T : \mathbb{R}^2 \to \mathbb{R}^2 \), được tạo thành bởi <strong>phép quay</strong> quanh gốc tọa độ một góc \( \dfrac{\pi}{3} \), sau đó <strong>phản xạ</strong> qua đường thẳng \( y = 2x \). Hãy tìm phần tử hàng 1, cột 2 của ma trận ánh xạ \( T \).</p>
@@ -440,8 +507,9 @@
 
             window.slides = document.querySelectorAll('.slide');
             window.currentSlideIndex = 0;
-            
-            // --- KHỞI TẠO QUIZ (ĐÃ CẬP NHẬT LỜI GIẢI THEO LÝ THUYẾT) ---
+            window.currentContent = 'slides';
+
+            // --- KHỞI TẠO QUIZ ---
             window.quizData = [
                 { 
                     question: `Let \\( T \\) be a transformation defined by <strong>rotation through \\( \\frac{\\pi}{6} \\)</strong> followed by <strong>reflection across the line \\( y = x \\)</strong>. Find the <strong>(2, 1)-entry</strong> of the matrix of \\( T \\).`,
@@ -497,7 +565,7 @@
                         <p>a. <strong>Phép phản xạ \\(F\\)</strong>: Phản xạ \\(\\vec{e}_2\\) qua đường \\( y = 3x \\).</p>
                         <p>Véc-tơ \( \\vec{u} = (1, 3) \) là vectơ chỉ phương của đường thẳng. Gọi \( N = (t, 3t) \) là hình chiếu vuông góc.</p>
                         <p>Véc-tơ \( \\vec{MN} = (t - 0, 3t - 1) \).</p>
-                        <p>Vì \( \\vec{MN} \\perp \\vec{u} \), tích vô hướng bằng 0:</p>
+                        <p>Vì \\( \\vec{MN} \\perp \\vec{u} \), tích vô hướng bằng 0:</p>
                         <p>\\[ (t - 0) \\cdot 1 + (3t - 1) \\cdot 3 = 0 \\implies t + 9t - 3 = 0 \\implies 10t = 3 \\implies t = \\frac{3}{10} \\]</p>
                         <p>Vậy \( N = \\left( \\frac{3}{10}, \\frac{9}{10} \\right) \).</p>
                         <p>b. Tìm tọa độ ảnh \( M' = (x', y') \) (với \( N \) là trung điểm của \( (0, 1) \) và \( M' \)):</p>
@@ -569,9 +637,58 @@
             window.currentQuestion = 0;
             window.score = 0;
             window.quizAnswered = false;
+            window.currentContent = 'slides';
 
             loadQuestion();
             renderMath();
+
+            // --- CONTENT TOGGLE FUNCTIONS ---
+            window.showContent = function(type) {
+                const slidesComponent = document.getElementById('slidesComponent');
+                const videoComponent = document.getElementById('videoComponent');
+                const contentTitle = document.getElementById('contentTitle');
+                const buttons = document.querySelectorAll('.content-btn');
+
+                buttons.forEach(btn => btn.classList.remove('active'));
+                if (type === 'slides') {
+                    slidesComponent.classList.remove('hidden');
+                    videoComponent.classList.add('hidden');
+                    contentTitle.textContent = 'Bài giảng Trực quan';
+                    document.querySelector('button[onclick="showContent(\'slides\')"]').classList.add('active');
+                    currentContent = 'slides';
+                } else {
+                    slidesComponent.classList.add('hidden');
+                    videoComponent.classList.remove('hidden');
+                    contentTitle.textContent = 'Bài giảng Video';
+                    document.querySelector('button[onclick="showContent(\'video\')"]').classList.add('active');
+                    currentContent = 'video';
+                }
+                renderMath();
+            };
+
+            window.toggleContentVisibility = function() {
+                const slidesComponent = document.getElementById('slidesComponent');
+                const videoComponent = document.getElementById('videoComponent');
+                const toggleContent = document.querySelector('.toggle-content');
+                const isHidden = currentContent === 'slides' ? slidesComponent.classList.contains('hidden') : videoComponent.classList.contains('hidden');
+
+                if (isHidden) {
+                    if (currentContent === 'slides') {
+                        slidesComponent.classList.remove('hidden');
+                    } else {
+                        videoComponent.classList.remove('hidden');
+                    }
+                    toggleContent.textContent = '[Ẩn]';
+                } else {
+                    if (currentContent === 'slides') {
+                        slidesComponent.classList.add('hidden');
+                    } else {
+                        videoComponent.classList.add('hidden');
+                    }
+                    toggleContent.textContent = '[Hiện]';
+                }
+                renderMath();
+            };
         });
 
         function renderMath() {
@@ -588,11 +705,7 @@
         }
         window.nextSlide = () => showSlide((currentSlideIndex + 1) % slides.length);
         window.prevSlide = () => showSlide((currentSlideIndex - 1 + slides.length) % slides.length);
-        window.toggleSliderVisibility = function() {
-            const sliderComponent = document.getElementById('sliderComponent');
-            const isHidden = sliderComponent.classList.toggle('hidden');
-            document.querySelector('.toggle-slider').textContent = isHidden ? '[Hiện]' : '[Ẩn]';
-        }
+        window.toggleSliderVisibility = window.toggleContentVisibility;
 
         // --- HÀM ĐIỀU KHIỂN QUIZ ---
         function loadQuestion() {
