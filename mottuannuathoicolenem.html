@@ -1,0 +1,1436 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lý và Thi Trắc Nghiệm - Giao diện Mới</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background-color: #f1f5f9;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%239ca3af' fill-opacity='0.1' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.99-7.5L26 15v19L13 41.5 0 34V15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .math-content {
+      line-height: 1.5;
+    }
+    .code-block {
+      font-family: 'Courier New', Courier, monospace;
+      background-color: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0.5rem 0;
+      font-size: 0.875rem;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #a5b4fc;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #818cf8;
+    }
+    .tab-active {
+      background-color: #4f46e5 !important;
+      color: white !important;
+    }
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 500px;
+    }
+  </style>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.document.getElementsByClassName('code-block').forEach(element => {
+            element.setAttribute('data-mathjax-skip', 'true');
+          });
+        }
+      }
+    };
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+</head>
+<body class="min-h-screen p-4 sm:p-6 lg:p-8">
+  <div id="progressBarContainer" class="hidden fixed top-0 left-0 w-full h-2 bg-slate-200 z-50">
+    <div id="progressBar" class="h-full bg-indigo-500 transition-all duration-300 ease-in-out" style="width: 0%"></div>
+  </div>
+  <div id="countdown" class="hidden fixed top-4 right-4 bg-red-600 text-white font-bold text-lg px-4 py-2 rounded-lg shadow-lg z-50 transition-transform duration-300">00:30</div>
+  
+  <div class="max-w-6xl mx-auto bg-white shadow-2xl rounded-2xl p-4 sm:p-8 overflow-hidden">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-slate-200">
+      <h1 class="text-3xl font-bold text-slate-800 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+        </svg>
+        <span>Trắc Nghiệm Thông Minh</span>
+      </h1>
+      <p class="text-slate-500 mt-2 sm:mt-0">Tạo, quản lý và thực hành các bài thi</p>
+    </div>
+
+    <div class="flex mb-6 bg-slate-100 p-1 rounded-xl">
+      <button id="folderTab" class="flex-1 py-2.5 text-center font-semibold text-slate-600 rounded-lg transition-all duration-300 hover:bg-white hover:text-indigo-600">
+        📁 Quản lý Thư Mục
+      </button>
+      <button id="manageTab" class="flex-1 py-2.5 text-center font-semibold text-slate-600 rounded-lg transition-all duration-300 hover:bg-white hover:text-indigo-600">
+        📝 Quản lý Câu Hỏi
+      </button>
+      <button id="quizTab" class="flex-1 py-2.5 text-center font-semibold text-slate-600 rounded-lg transition-all duration-300 hover:bg-white hover:text-indigo-600">
+        🚀 Chế độ Thi
+      </button>
+    </div>
+
+    <div id="sections-container">
+      <div id="folderSection" class="hidden fade-in">
+        <div class="mb-6 p-6 bg-slate-50 rounded-xl border border-slate-200">
+          <h2 class="text-xl font-bold text-slate-700 mb-4">Tạo Thư Mục Mới</h2>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input id="newFolderName" type="text" placeholder="Ví dụ: Giải tích chương 1" class="flex-grow border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm transition-all" />
+            <select id="parentFolderSelect" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm bg-white">
+              <option value="null">Là thư mục gốc</option>
+            </select>
+            <button onclick="addFolder()" class="bg-indigo-600 text-white font-semibold hover:bg-indigo-700 px-5 py-2 rounded-lg shadow-md transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+              <span>Tạo Mới</span>
+            </button>
+          </div>
+        </div>
+        <div id="folderList" class="space-y-1"></div>
+      </div>
+
+      <div id="manageSection" class="hidden fade-in">
+        <div class="mb-6 p-6 bg-slate-50 rounded-xl border border-slate-200">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+            <h2 class="text-xl font-bold text-slate-700">Thêm & Chỉnh Sửa Câu Hỏi</h2>
+            <select id="currentFolder" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm transition-all bg-white w-full sm:w-auto">
+              <option value="">Chọn thư mục...</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-1 gap-4">
+            <textarea id="question" placeholder="Nội dung câu hỏi (hỗ trợ LaTeX, ví dụ: \\(x^2 + 2x + 1 = 0\\))" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm transition-all h-24"></textarea>
+            <div class="flex items-center gap-4">
+              <label for="optionCount" class="font-semibold text-slate-700">Số lượng đáp án:</label>
+              <select id="optionCount" onchange="updateOptionFields()" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm bg-white">
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+              </select>
+            </div>
+            <div id="optionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input id="option1" type="text" placeholder="Đáp án 1" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm" />
+              <input id="option2" type="text" placeholder="Đáp án 2" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm" />
+              <input id="option3" type="text" placeholder="Đáp án 3" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm" />
+              <input id="option4" type="text" placeholder="Đáp án 4" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <select id="correctOption" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm">
+                <option value="">Chọn đáp án đúng</option>
+                <option value="1">Đáp án 1</option>
+                <option value="2">Đáp án 2</option>
+                <option value="3">Đáp án 3</option>
+                <option value="4">Đáp án 4</option>
+              </select>
+              <select id="difficulty" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm">
+                <option value="easy">Dễ</option>
+                <option value="medium">Trung bình</option>
+                <option value="hard">Khó</option>
+              </select>
+            </div>
+            <textarea id="explanation" placeholder="Giải thích đáp án (hỗ trợ LaTeX)" class="border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm h-24"></textarea>
+          </div>
+          <div class="flex flex-wrap gap-3 mt-4">
+            <button onclick="addQuestion()" class="bg-indigo-600 text-white font-semibold hover:bg-indigo-700 px-4 py-2 rounded-lg shadow-md transition-all duration-200 active:scale-95 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6a1 1 0 10-2 0v5.586L7.707 10.293zM5 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" /></svg>
+              Lưu Câu Hỏi
+            </button>
+            <button onclick="exportQuestions()" class="bg-teal-600 text-white font-semibold hover:bg-teal-700 px-4 py-2 rounded-lg shadow-md transition-all duration-200 active:scale-95 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+              Xuất JSON
+            </button>
+            <input type="file" id="importFile" class="hidden" onchange="importQuestions(event)" accept=".json" />
+            <button onclick="document.getElementById('importFile').click()" class="bg-sky-600 text-white font-semibold hover:bg-sky-700 px-4 py-2 rounded-lg shadow-md transition-all duration-200 active:scale-95 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+              Nhập JSON
+            </button>
+          </div>
+        </div>
+        <div id="bulkActionsBar" class="hidden sticky bottom-4 z-20 bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-slate-200 flex items-center justify-between gap-4">
+          <span id="selectionCount" class="font-semibold text-slate-700"></span>
+          <div class="flex gap-2">
+            <button onclick="moveSelectedQuestions()" class="bg-blue-100 text-blue-800 font-semibold hover:bg-blue-200 px-3 py-1 rounded-lg transition-all flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+              Di chuyển
+            </button>
+            <button onclick="deleteSelectedQuestions()" class="bg-red-100 text-red-700 font-semibold hover:bg-red-200 px-3 py-1 rounded-lg transition-all flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
+              Xóa
+            </button>
+          </div>
+        </div>
+        <div id="questionListHeader" class="flex items-center gap-3 px-5 py-2">
+          <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)" class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+          <label for="selectAllCheckbox" class="font-semibold text-slate-600">Chọn tất cả</label>
+        </div>
+        <div id="questionList" class="space-y-4"></div>
+      </div>
+
+      <div id="quizSection" class="hidden fade-in">
+        <div id="quizArea" class="mb-6">
+          <div id="quizStart" class="p-6 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
+            <div class="flex-grow">
+              <h2 class="text-xl font-bold text-slate-700">🚀 Sẵn sàng chinh phục thử thách?</h2>
+              <p class="text-slate-500 mt-1">Chọn một thư mục để bắt đầu bài thi của bạn.</p>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <select id="quizFolder" class="flex-grow border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm transition-all bg-white">
+                <option value="">Chọn thư mục để thi</option>
+              </select>
+              <button onclick="startQuiz()" class="bg-indigo-600 text-white font-semibold hover:bg-indigo-700 px-5 py-2 rounded-lg shadow-md transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                Bắt đầu
+              </button>
+            </div>
+          </div>
+          <div id="quizContent" class="hidden">
+            <div class="flex flex-col lg:flex-row gap-6">
+              <div class="w-full lg:w-3/5 bg-white rounded-xl shadow-lg p-6 border border-slate-200">
+                <div id="quizQuestion" class="font-bold text-lg text-slate-800 mb-4 math-content"></div>
+                <div id="quizOptions" class="space-y-3"></div>
+                <div id="quizFeedback" class="mt-4 hidden"></div>
+                <div class="flex flex-wrap gap-3 mt-6 pt-4 border-t border-slate-200">
+                  <button id="prevQuestion" onclick="prevQuestion()" class="bg-slate-500 text-white font-semibold hover:bg-slate-600 px-4 py-2 rounded-lg shadow-md transition-all duration-200 active:scale-95 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                    Câu Trước
+                  </button>
+                  <button id="submitAnswer" onclick="submitAnswer()" class="bg-indigo-600 text-white font-semibold hover:bg-indigo-700 px-4 py-2 rounded-lg shadow-md transition-all duration-200 active:scale-95 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                    Nộp Đáp Án
+                  </button>
+                  <button id="retryQuestion" onclick="retryQuestion()" class="border border-slate-400 text-slate-600 font-semibold hover:bg-slate-100 px-4 py-2 rounded-lg shadow-md transition-all duration-200 active:scale-95 flex items-center gap-2 hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" /></svg>
+                    Làm lại
+                  </button>
+                  <button id="nextQuestion" onclick="nextQuestion()" class="bg-indigo-600 text-white font-semibold hover:bg-indigo-700 px-4 py-2 rounded-lg shadow-md transition-all duration-200 active:scale-95 flex items-center gap-2">
+                    Câu Tiếp Theo
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="w-full lg:w-2/5 bg-white rounded-xl shadow-lg p-6 border border-slate-200">
+                <h3 class="text-xl font-bold text-slate-700 mb-4">Bản đồ câu hỏi</h3>
+                <div id="questionMapGrid" class="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-5 gap-2"></div>
+              </div>
+            </div>
+          </div>
+          <div id="quizResults" class="hidden"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="moveQuestionModal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <h3 class="text-xl font-bold text-slate-800 mb-4">Di chuyển câu hỏi</h3>
+      <p class="text-slate-600 mb-4">Chọn thư mục đích để di chuyển <span id="moveCount" class="font-bold"></span> câu hỏi.</p>
+      <select id="moveFolderTarget" class="w-full border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm bg-white"></select>
+      <div class="flex justify-end gap-3 mt-6">
+        <button onclick="closeMoveModal()" class="bg-slate-200 text-slate-800 font-semibold hover:bg-slate-300 px-5 py-2 rounded-lg transition-all">Hủy</button>
+        <button onclick="confirmMoveQuestions()" class="bg-indigo-600 text-white font-semibold hover:bg-indigo-700 px-5 py-2 rounded-lg shadow-md transition-all">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let folders = JSON.parse(localStorage.getItem("folders")) || [];
+    let currentFolderId = null;
+    let selectedQuestions = [];
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+    let selectedAnswer = null;
+    let quizTimer = null;
+    let shuffledQuizQuestions = [];
+
+    function switchTab(tabId) {
+      const sections = ["folderSection", "manageSection", "quizSection"];
+      const tabs = ["folderTab", "manageTab", "quizTab"];
+      sections.forEach(section => document.getElementById(section).classList.add("hidden"));
+      tabs.forEach(tab => {
+        const tabEl = document.getElementById(tab);
+        tabEl.classList.remove("tab-active");
+        tabEl.classList.add("text-slate-600", "hover:bg-white", "hover:text-indigo-600");
+      });
+      const targetSection = document.getElementById(`${tabId}Section`);
+      const targetTab = document.getElementById(`${tabId}Tab`);
+      targetSection.classList.remove("hidden");
+      setTimeout(() => targetSection.classList.add('fade-in'), 10);
+      targetTab.classList.add("tab-active");
+      targetTab.classList.remove("text-slate-600", "hover:bg-white", "hover:text-indigo-600");
+      if (tabId !== 'quiz') {
+        clearInterval(quizTimer);
+        document.getElementById("progressBarContainer").classList.add("hidden");
+        document.getElementById("countdown").classList.add("hidden");
+      }
+      if (tabId === "folder") {
+        renderFolders();
+        renderFolderSelect('parentFolderSelect', true);
+      }
+      if (tabId === "manage") {
+        renderFolderSelect('currentFolder');
+        renderQuestions();
+      }
+      if (tabId === "quiz") {
+        renderQuizFolderSelect();
+        resetQuizInterface();
+      }
+    }
+
+    document.getElementById("folderTab").addEventListener("click", () => switchTab("folder"));
+    document.getElementById("manageTab").addEventListener("click", () => switchTab("manage"));
+    document.getElementById("quizTab").addEventListener("click", () => switchTab("quiz"));
+
+    function renderMath() {
+      if (window.MathJax) {
+        MathJax.typesetPromise([
+          '.math-content:not([data-mathjax-skip="true"])'
+        ]).catch(err => console.error('MathJax typesetting failed:', err));
+      }
+    }
+
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    function getGridColumnCount() {
+      const grid = document.getElementById('questionMapGrid');
+      if (!grid || !grid.children.length || typeof window.getComputedStyle !== 'function') {
+        return 5;
+      }
+      const gridComputedStyle = window.getComputedStyle(grid);
+      const gridTemplateColumns = gridComputedStyle.getPropertyValue('grid-template-columns');
+      if (gridTemplateColumns) {
+        return gridTemplateColumns.split(' ').length;
+      }
+      return 5;
+    }
+
+    function getFolder(folderId) {
+      return folders.find(f => f.id === folderId);
+    }
+
+    function getChildren(parentId) {
+      return folders.filter(f => f.parentId === parentId);
+    }
+
+    function renderFolders(parentId = null, level = 0) {
+      const folderList = parentId === null ? document.getElementById("folderList") : null;
+      if (parentId === null) {
+        folderList.innerHTML = "";
+      }
+      const children = getChildren(parentId);
+      if (parentId === null && children.length === 0) {
+        folderList.innerHTML = `<p class="text-center text-slate-500 py-8">Chưa có thư mục nào. Hãy tạo một thư mục mới!</p>`;
+        return;
+      }
+      children.forEach(folder => {
+        const questionCount = folder.questions.length;
+        const totalQuestionCount = countQuestionsInFolder(folder.id, true);
+        const div = document.createElement("div");
+        div.style.marginLeft = `${level * 2}rem`;
+        div.className = `bg-white shadow-lg rounded-xl p-4 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition-transform duration-200 hover:scale-[1.01] hover:shadow-xl`;
+        div.innerHTML = `
+          <div class="flex-grow">
+            <span class="text-lg font-semibold text-slate-800">${folder.name}</span>
+            <p class="text-sm text-slate-500">${questionCount} câu hỏi (tổng ${totalQuestionCount} trong các thư mục con)</p>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <button onclick="openFolder('${folder.id}')" class="bg-indigo-100 text-indigo-700 font-semibold hover:bg-indigo-200 px-3 py-1 rounded-lg transition-all flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
+              Mở
+            </button>
+            <button onclick="renameFolder('${folder.id}')" class="bg-yellow-100 text-yellow-800 font-semibold hover:bg-yellow-200 px-3 py-1 rounded-lg transition-all flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
+              Đổi tên
+            </button>
+            <button onclick="deleteFolder('${folder.id}')" class="bg-red-100 text-red-700 font-semibold hover:bg-red-200 px-3 py-1 rounded-lg transition-all flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
+              Xóa
+            </button>
+          </div>
+        `;
+        document.getElementById("folderList").appendChild(div);
+        renderFolders(folder.id, level + 1);
+      });
+      if (parentId === null) {
+        localStorage.setItem("folders", JSON.stringify(folders));
+      }
+    }
+
+    function countQuestionsInFolder(folderId, recursive = false) {
+      const folder = getFolder(folderId);
+      if (!folder) return 0;
+      let count = folder.questions.length;
+      if (recursive) {
+        const children = getChildren(folderId);
+        children.forEach(child => {
+          count += countQuestionsInFolder(child.id, true);
+        });
+      }
+      return count;
+    }
+
+    function addFolder() {
+      const nameInput = document.getElementById("newFolderName");
+      const parentSelect = document.getElementById("parentFolderSelect");
+      const name = nameInput.value.trim();
+      const parentId = parentSelect.value === 'null' ? null : parentSelect.value;
+      if (!name) { alert("Vui lòng nhập tên thư mục."); return; }
+      folders.push({ id: crypto.randomUUID(), name, parentId, questions: [] });
+      nameInput.value = "";
+      renderFolders();
+      renderFolderSelect('parentFolderSelect', true);
+    }
+
+    function getFolderAndAllChildrenIds(folderId) {
+      let ids = [folderId];
+      const children = getChildren(folderId);
+      children.forEach(child => {
+        ids = ids.concat(getFolderAndAllChildrenIds(child.id));
+      });
+      return ids;
+    }
+
+    function deleteFolder(folderId) {
+      const folder = getFolder(folderId);
+      if (confirm(`Bạn có chắc muốn xóa thư mục "${folder.name}" và TẤT CẢ thư mục con cùng câu hỏi bên trong không? Hành động này không thể hoàn tác.`)) {
+        const idsToDelete = getFolderAndAllChildrenIds(folderId);
+        folders = folders.filter(f => !idsToDelete.includes(f.id));
+        if (currentFolderId === folderId) currentFolderId = null;
+        renderFolders();
+        renderAllFolderSelects();
+      }
+    }
+
+    function renameFolder(folderId) {
+      const folder = getFolder(folderId);
+      const newName = prompt("Nhập tên mới cho thư mục:", folder.name);
+      if (newName && newName.trim()) {
+        folder.name = newName.trim();
+        renderFolders();
+        renderAllFolderSelects();
+      }
+    }
+
+    function openFolder(folderId) {
+      currentFolderId = folderId;
+      switchTab("manage");
+    }
+
+    function renderAllFolderSelects() {
+      renderFolderSelect('parentFolderSelect', true);
+      renderFolderSelect('currentFolder');
+      renderQuizFolderSelect();
+    }
+
+    function renderFolderSelectOptions(select, parentId, level, includeRoot = false, excludeFolderId = null) {
+      if (level === 0 && includeRoot) {
+        const option = document.createElement("option");
+        option.value = 'null';
+        option.textContent = "Là thư mục gốc";
+        select.appendChild(option);
+      }
+      const children = getChildren(parentId);
+      children.forEach(folder => {
+        if (folder.id === excludeFolderId) return;
+        const option = document.createElement("option");
+        option.value = folder.id;
+        option.textContent = `${'—'.repeat(level)} ${folder.name}`;
+        if (folder.id === currentFolderId) option.selected = true;
+        select.appendChild(option);
+        renderFolderSelectOptions(select, folder.id, level + 1, false, excludeFolderId);
+      });
+    }
+
+    function renderFolderSelect(selectId, includeRoot = false, excludeFolderId = null) {
+      const select = document.getElementById(selectId);
+      select.innerHTML = `<option value="">Chọn thư mục...</option>`;
+      renderFolderSelectOptions(select, null, 0, includeRoot, excludeFolderId);
+      select.value = currentFolderId;
+    }
+
+    function renderQuizFolderSelect() {
+      const select = document.getElementById("quizFolder");
+      select.innerHTML = '<option value="">Chọn thư mục để thi</option>';
+      renderFolderSelectOptions(select, null, 0, false, null);
+    }
+
+    document.getElementById("currentFolder").addEventListener("change", (e) => {
+      currentFolderId = e.target.value;
+      renderQuestions();
+    });
+
+    function updateOptionFields() {
+      const optionCount = parseInt(document.getElementById("optionCount").value);
+      const optionsContainer = document.getElementById("optionsContainer");
+      const correctOptionSelect = document.getElementById("correctOption");
+      optionsContainer.innerHTML = "";
+      correctOptionSelect.innerHTML = '<option value="">Chọn đáp án đúng</option>';
+      
+      for (let i = 1; i <= optionCount; i++) {
+        const input = document.createElement("input");
+        input.id = `option${i}`;
+        input.type = "text";
+        input.placeholder = `Đáp án ${i}`;
+        input.className = "border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg px-4 py-2 shadow-sm";
+        optionsContainer.appendChild(input);
+
+        const option = document.createElement("option");
+        option.value = `${i}`;
+        option.textContent = `Đáp án ${i}`;
+        correctOptionSelect.appendChild(option);
+      }
+
+      // Adjust grid layout based on option count
+      optionsContainer.className = `grid grid-cols-1 ${optionCount <= 4 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-4`;
+    }
+
+    function updateSelectionState() {
+      const bulkBar = document.getElementById('bulkActionsBar');
+      const countSpan = document.getElementById('selectionCount');
+      const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+      if (selectedQuestions.length > 0) {
+        bulkBar.classList.remove('hidden');
+        countSpan.textContent = `Đã chọn ${selectedQuestions.length} câu hỏi`;
+      } else {
+        bulkBar.classList.add('hidden');
+      }
+      const folder = currentFolderId ? getFolder(currentFolderId) : null;
+      if (folder && folder.questions.length > 0 && selectedQuestions.length === folder.questions.length) {
+        selectAllCheckbox.checked = true;
+      } else {
+        selectAllCheckbox.checked = false;
+      }
+    }
+
+    function toggleSelectAll(checked) {
+      selectedQuestions = [];
+      const folder = getFolder(currentFolderId);
+      const checkboxes = document.querySelectorAll('.question-checkbox');
+      checkboxes.forEach((cb, index) => {
+        cb.checked = checked;
+        if (checked) {
+          selectedQuestions.push(index);
+        }
+      });
+      updateSelectionState();
+    }
+
+    function toggleQuestionSelection(index, isChecked) {
+      const qIndex = selectedQuestions.indexOf(index);
+      if (isChecked && qIndex === -1) {
+        selectedQuestions.push(index);
+      } else if (!isChecked && qIndex > -1) {
+        selectedQuestions.splice(qIndex, 1);
+      }
+      updateSelectionState();
+    }
+
+    function deleteSelectedQuestions() {
+      if (selectedQuestions.length === 0) return;
+      if (confirm(`Bạn có chắc muốn xóa vĩnh viễn ${selectedQuestions.length} câu hỏi đã chọn không?`)) {
+        const folder = getFolder(currentFolderId);
+        selectedQuestions.sort((a, b) => b - a);
+        selectedQuestions.forEach(index => {
+          folder.questions.splice(index, 1);
+        });
+        selectedQuestions = [];
+        renderQuestions();
+      }
+    }
+
+    function moveSelectedQuestions() {
+      if (selectedQuestions.length === 0) return;
+      const modal = document.getElementById('moveQuestionModal');
+      const select = document.getElementById('moveFolderTarget');
+      const countSpan = document.getElementById('moveCount');
+      countSpan.textContent = selectedQuestions.length;
+      select.innerHTML = '';
+      renderFolderSelectOptions(select, null, 0, false, currentFolderId);
+      modal.classList.remove('hidden');
+    }
+
+    function closeMoveModal() {
+      document.getElementById('moveQuestionModal').classList.add('hidden');
+    }
+
+    function confirmMoveQuestions() {
+      const targetFolderId = document.getElementById('moveFolderTarget').value;
+      if (!targetFolderId) {
+        alert("Vui lòng chọn thư mục đích.");
+        return;
+      }
+      const sourceFolder = getFolder(currentFolderId);
+      const targetFolder = getFolder(targetFolderId);
+      selectedQuestions.sort((a, b) => b - a);
+      const questionsToMove = [];
+      selectedQuestions.forEach(index => {
+        questionsToMove.push(sourceFolder.questions[index]);
+        sourceFolder.questions.splice(index, 1);
+      });
+      targetFolder.questions.push(...questionsToMove.reverse());
+      selectedQuestions = [];
+      closeMoveModal();
+      renderQuestions();
+    }
+
+    function isValidForQuiz(q) {
+      const hasQuestionContent = q.question && q.question.trim().length > 0;
+      const optionCount = q.optionCount || 4;
+      const hasEnoughOptions = q.options && q.options.length === optionCount && q.options.every(opt => opt && opt.trim().length > 0);
+      const hasCorrectOption = q.correctOption && Array.from({length: optionCount}, (_, i) => String(i + 1)).includes(q.correctOption);
+      const reasons = [];
+      if (!hasQuestionContent) reasons.push("Thiếu nội dung câu hỏi");
+      if (!hasEnoughOptions) reasons.push(`Cần đủ ${optionCount} đáp án`);
+      if (!hasCorrectOption) reasons.push("Thiếu đáp án đúng hoặc đáp án đúng không hợp lệ");
+      return { isValid: hasQuestionContent && hasEnoughOptions && hasCorrectOption, reasons };
+    }
+
+    function renderQuestions() {
+      const questionListContainer = document.getElementById("questionList");
+      const header = document.getElementById('questionListHeader');
+      questionListContainer.innerHTML = "";
+      selectedQuestions = [];
+      updateSelectionState();
+      if (!currentFolderId) {
+        questionListContainer.innerHTML = `<p class='text-center text-slate-500 py-8'>Vui lòng chọn một thư mục để xem câu hỏi.</p>`;
+        header.classList.add('hidden');
+        return;
+      }
+      const folder = getFolder(currentFolderId);
+      if (!folder || folder.questions.length === 0) {
+        questionListContainer.innerHTML = `<p class='text-center text-slate-500 py-8'>Thư mục này chưa có câu hỏi nào. Hãy thêm một câu hỏi mới!</p>`;
+        header.classList.add('hidden');
+        return;
+      }
+      header.classList.remove('hidden');
+      document.getElementById('selectAllCheckbox').checked = false;
+      folder.questions.forEach((q, index) => {
+        const { isValid, reasons } = isValidForQuiz(q);
+        const difficultyMap = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' };
+        const difficultyColorMap = { easy: 'bg-green-100 text-green-800', medium: 'bg-yellow-100 text-yellow-800', hard: 'bg-red-100 text-red-800' };
+        const questionText = q.question.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const isCode = questionText.includes('\n');
+        const questionContent = isCode
+          ? `<pre class="code-block" data-mathjax-skip="true">${questionText}</pre>`
+          : `<span class="math-content">${questionText || "(Chưa có nội dung)"}</span>`;
+        const div = document.createElement("div");
+        div.className = "bg-white shadow-lg rounded-xl p-5 border border-slate-200 transition-shadow duration-200 hover:shadow-xl flex items-start gap-4";
+        div.innerHTML = `
+          <input type="checkbox" onchange="toggleQuestionSelection(${index}, this.checked)" class="question-checkbox h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-1">
+          <div class="flex-grow">
+            <div class="flex justify-between items-start">
+              <p class="text-xs font-semibold uppercase text-slate-400">Câu hỏi ${index + 1}</p>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold px-2 py-1 rounded-full ${difficultyColorMap[q.difficulty]}">${difficultyMap[q.difficulty]}</span>
+                <span class="text-xs font-semibold px-2 py-1 rounded-full ${isValid ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}">${isValid ? 'Sẵn sàng thi' : 'Chưa hợp lệ'}</span>
+              </div>
+            </div>
+            <div class="text-base font-semibold text-slate-800 my-3">${questionContent}</div>
+            <ul class="space-y-2 ml-4 text-sm list-disc list-inside">
+              ${q.options.map((opt, i) => `<li class="${q.correctOption === String(i + 1) ? 'font-bold text-green-600' : 'text-slate-600'}">${opt || '(Trống)'}</li>`).join('')}
+            </ul>
+            ${q.explanation ? `<div class="mt-3 pt-3 border-t border-slate-200 text-sm text-slate-600"><strong class="font-semibold text-slate-800">Giải thích:</strong> <span class="math-content">${q.explanation}</span></div>` : "<div class='mt-3 pt-3 border-t border-slate-200 text-sm text-slate-500 italic'>(Chưa có giải thích)</div>"}
+            ${!isValid ? `<div class='mt-2 text-xs text-red-500'>Lý do chưa hợp lệ: ${reasons.join(", ")}</div>` : ''}
+            <div class="flex gap-2 mt-4">
+              <button onclick="editQuestion(${index})" class="bg-yellow-100 text-yellow-800 font-semibold hover:bg-yellow-200 px-3 py-1 rounded-lg transition-all flex items-center gap-2 text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
+                Sửa
+              </button>
+              <button onclick="deleteQuestion(${index})" class="bg-red-100 text-red-700 font-semibold hover:bg-red-200 px-3 py-1 rounded-lg transition-all flex items-center gap-2 text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
+                Xóa
+              </button>
+            </div>
+          </div>
+        `;
+        questionListContainer.appendChild(div);
+      });
+      renderMath();
+      localStorage.setItem("folders", JSON.stringify(folders));
+    }
+
+    function addQuestion() {
+      if (!currentFolderId) { alert("Vui lòng chọn thư mục."); return; }
+      const question = document.getElementById("question").value.trim();
+      const optionCount = parseInt(document.getElementById("optionCount").value);
+      const options = Array.from({length: optionCount}, (_, i) => document.getElementById(`option${i + 1}`).value.trim());
+      const correctOption = document.getElementById("correctOption").value;
+      const difficulty = document.getElementById("difficulty").value;
+      const explanation = document.getElementById("explanation").value.trim();
+      if (!question && options.every(opt => !opt) && !explanation) {
+        alert("Vui lòng điền ít nhất một thông tin cho câu hỏi.");
+        return;
+      }
+      const newQuestion = { question, options, correctOption, difficulty, explanation, optionCount };
+      const folder = getFolder(currentFolderId);
+      folder.questions.push(newQuestion);
+      clearForm();
+      renderQuestions();
+    }
+
+    function clearForm() {
+      document.getElementById("question").value = "";
+      document.getElementById("optionCount").value = "4";
+      updateOptionFields();
+      document.getElementById("difficulty").value = "easy";
+      document.getElementById("explanation").value = "";
+    }
+
+    function editQuestion(index) {
+      const folder = getFolder(currentFolderId);
+      const q = folder.questions[index];
+      document.getElementById("question").value = q.question;
+      document.getElementById("optionCount").value = q.optionCount || 4;
+      updateOptionFields();
+      q.options.forEach((opt, i) => {
+        if (document.getElementById(`option${i + 1}`)) {
+          document.getElementById(`option${i + 1}`).value = opt || "";
+        }
+      });
+      document.getElementById("correctOption").value = q.correctOption || "";
+      document.getElementById("difficulty").value = q.difficulty;
+      document.getElementById("explanation").value = q.explanation;
+      folder.questions.splice(index, 1);
+      renderQuestions();
+      window.scrollTo({ top: document.getElementById('manageSection').offsetTop, behavior: 'smooth' });
+    }
+
+    function deleteQuestion(index) {
+      if (confirm("Bạn có chắc muốn xóa câu hỏi này?")) {
+        const folder = getFolder(currentFolderId);
+        folder.questions.splice(index, 1);
+        renderQuestions();
+      }
+    }
+
+    function exportQuestions() {
+      if (!currentFolderId) { alert("Vui lòng chọn thư mục để xuất."); return; }
+      const folder = getFolder(currentFolderId);
+      const blob = new Blob([JSON.stringify(folder.questions, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${folder.name.replace(/\s+/g, '_')}_questions.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importQuestions(event) {
+      if (!currentFolderId) { alert("Vui lòng chọn thư mục để nhập vào."); return; }
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (!Array.isArray(imported)) { alert("File JSON phải chứa một mảng câu hỏi."); return; }
+          const folder = getFolder(currentFolderId);
+          folder.questions = folder.questions.concat(imported);
+          alert(`Đã nhập thành công ${imported.length} câu hỏi.`);
+          renderQuestions();
+        } catch (err) {
+          alert("Lỗi đọc file JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = null;
+    }
+
+    function resetQuizInterface() {
+      document.getElementById("quizStart").classList.remove("hidden");
+      document.getElementById("quizContent").classList.add("hidden");
+      document.getElementById("quizResults").classList.add("hidden");
+      document.getElementById("quizFolder").value = "";
+      currentFolderId = null;
+      userAnswers = [];
+      selectedAnswer = null;
+      shuffledQuizQuestions = [];
+    }
+
+    function returnToQuizStart() {
+      resetQuizInterface();
+      renderQuizFolderSelect();
+    }
+
+    function startQuiz(resetAnswers = true) {
+      const folderId = document.getElementById("quizFolder").value;
+      if (!folderId) { alert("Vui lòng chọn một thư mục để bắt đầu."); return; }
+      currentFolderId = folderId;
+      const allQuestionsInBranch = [];
+      const folderIdsToScan = getFolderAndAllChildrenIds(folderId);
+      folderIdsToScan.forEach(id => {
+        const folder = getFolder(id);
+        if (folder) {
+          allQuestionsInBranch.push(...folder.questions);
+        }
+      });
+      const validQuestions = allQuestionsInBranch.filter(q => isValidForQuiz(q).isValid);
+      if (validQuestions.length === 0) {
+        alert("Thư mục này (và các thư mục con) không có câu hỏi nào hợp lệ để thi. Một câu hỏi hợp lệ cần có nội dung, đủ đáp án theo số lượng đã chọn và có đáp án đúng hợp lệ.");
+        return;
+      }
+      shuffledQuizQuestions = validQuestions.map(q => {
+        const originalOptions = [...q.options];
+        const correctAnswerText = originalOptions[parseInt(q.correctOption) - 1];
+        const shuffledOptions = shuffleArray(originalOptions);
+        const newCorrectIndex = shuffledOptions.indexOf(correctAnswerText) + 1;
+        return { ...q, options: shuffledOptions, correctOption: String(newCorrectIndex) };
+      });
+      currentQuestionIndex = 0;
+      if (resetAnswers) {
+        userAnswers = new Array(shuffledQuizQuestions.length).fill(null);
+      }
+      selectedAnswer = userAnswers[0];
+      document.getElementById("quizStart").classList.add("hidden");
+      document.getElementById("quizResults").classList.add("hidden");
+      document.getElementById("quizContent").classList.remove("hidden");
+      document.getElementById("progressBarContainer").classList.remove("hidden");
+      document.getElementById("countdown").classList.remove("hidden");
+      displayQuestion();
+    }
+
+    function startTimer() {
+      let timeLeft = 30;
+      const countdownEl = document.getElementById("countdown");
+      countdownEl.textContent = `00:${String(timeLeft).padStart(2, '0')}`;
+      countdownEl.classList.remove('bg-red-600', 'scale-110');
+      countdownEl.classList.add('bg-indigo-600');
+      clearInterval(quizTimer);
+      quizTimer = setInterval(() => {
+        timeLeft--;
+        countdownEl.textContent = `00:${String(timeLeft).padStart(2, '0')}`;
+        if (timeLeft <= 5) {
+          countdownEl.classList.add('bg-red-600', 'scale-110');
+          countdownEl.classList.remove('bg-indigo-600');
+        }
+        if (timeLeft <= 0) {
+          clearInterval(quizTimer);
+          submitAnswer(true);
+        }
+      }, 1000);
+    }
+
+    function updateProgressBar() {
+      const progress = (currentQuestionIndex / shuffledQuizQuestions.length) * 100;
+      document.getElementById("progressBar").style.width = `${progress}%`;
+    }
+
+    function displayQuestion() {
+      const q = shuffledQuizQuestions[currentQuestionIndex];
+      const isSubmitted = userAnswers[currentQuestionIndex] !== null;
+      const difficultyMap = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' };
+      const difficultyColorMap = { easy: 'bg-green-100 text-green-800', medium: 'bg-yellow-100 text-yellow-800', hard: 'bg-red-100 text-red-800' };
+      const questionText = q.question.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const isCode = questionText.includes('\n');
+      const questionContent = isCode
+        ? `<pre class="code-block" data-mathjax-skip="true">${questionText}</pre>`
+        : `<span class="math-content">${questionText}</span>`;
+      document.getElementById("quizQuestion").innerHTML = `
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-bold text-slate-500">Câu ${currentQuestionIndex + 1}/${shuffledQuizQuestions.length}</span>
+          <span class="text-xs font-semibold px-2 py-1 rounded-full ${difficultyColorMap[q.difficulty]}">${difficultyMap[q.difficulty]}</span>
+        </div>
+        <div class="mt-2">${questionContent}</div>
+      `;
+      const optionsDiv = document.getElementById("quizOptions");
+      optionsDiv.innerHTML = "";
+      q.options.forEach((option, i) => {
+        const value = `${i + 1}`;
+        const isSelected = selectedAnswer === value;
+        let optionClass = 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50';
+        if (isSubmitted) {
+          optionClass = 'border-slate-300 opacity-60';
+          if (q.correctOption === value) {
+            optionClass = 'bg-green-100 border-green-500 text-green-800';
+          }
+          if (userAnswers[currentQuestionIndex] === value && q.correctOption !== value) {
+            optionClass = 'bg-red-100 border-red-500 text-red-800';
+          }
+        } else if (isSelected) {
+          optionClass = 'bg-indigo-100 border-indigo-500 ring-2 ring-indigo-300';
+        }
+        const div = document.createElement("div");
+        div.className = `p-3 border rounded-lg cursor-pointer transition-all duration-200 ${optionClass} ${isSubmitted ? 'pointer-events-none' : ''}`;
+        div.innerHTML = `<span class="font-semibold mr-2">${String.fromCharCode(65 + i)}.</span> <span class="math-content">${option}</span>`;
+        if (!isSubmitted) {
+          div.onclick = () => selectAnswer(value);
+        }
+        optionsDiv.appendChild(div);
+      });
+      const feedbackDiv = document.getElementById("quizFeedback");
+      if (isSubmitted) {
+        const isCorrect = userAnswers[currentQuestionIndex] === q.correctOption;
+        feedbackDiv.classList.remove("hidden");
+        feedbackDiv.innerHTML = `
+          <div class="fade-in p-4 rounded-lg mt-4 ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border">
+            <h4 class="font-bold text-lg ${isCorrect ? 'text-green-700' : 'text-red-700'}">${isCorrect ? '✅ Chính xác!' : '❌ Sai rồi!'}</h4>
+            ${!isCorrect ? `<p class="text-sm text-slate-700 mt-1"><strong>Đáp án đúng:</strong> <span class="math-content">${q.options[parseInt(q.correctOption) - 1]}</span></p>` : ''}
+            <p class="text-sm text-slate-600 mt-2"><strong class="font-semibold text-slate-800">Giải thích:</strong> <span class="math-content">${q.explanation || "(Không có giải thích)"}</span></p>
+          </div>
+        `;
+      } else {
+        feedbackDiv.classList.add("hidden");
+        feedbackDiv.innerHTML = '';
+      }
+      document.getElementById("prevQuestion").classList.remove('hidden');
+      document.getElementById("nextQuestion").classList.remove('hidden');
+      document.getElementById("prevQuestion").classList.toggle("opacity-50", currentQuestionIndex === 0);
+      document.getElementById("nextQuestion").classList.toggle("opacity-50", currentQuestionIndex >= shuffledQuizQuestions.length - 1);
+      document.getElementById("submitAnswer").classList.toggle("hidden", isSubmitted || selectedAnswer === null);
+      document.getElementById("retryQuestion").classList.toggle("hidden", !isSubmitted);
+      if (!isSubmitted) {
+        startTimer();
+      } else {
+        clearInterval(quizTimer);
+        document.getElementById('countdown').classList.add('hidden');
+      }
+      updateProgressBar();
+      renderQuestionMap();
+      renderMath();
+    }
+
+    function renderQuestionMap() {
+      const mapGrid = document.getElementById("questionMapGrid");
+      mapGrid.innerHTML = '';
+      shuffledQuizQuestions.forEach((q, index) => {
+        const isAnswered = userAnswers[index] !== null;
+        let statusClass = 'bg-slate-200 text-slate-600 hover:bg-slate-300';
+        if (index === currentQuestionIndex) {
+          statusClass = 'bg-indigo-600 text-white ring-2 ring-offset-2 ring-indigo-500';
+        } else if (isAnswered) {
+          statusClass = userAnswers[index] === q.correctOption ? 'bg-green-500 text-white' : 'bg-red-500 text-white';
+        }
+        const button = document.createElement('button');
+        button.className = `w-10 h-10 flex items-center justify-center rounded-lg font-bold text-sm transition-all duration-200 ${statusClass}`;
+        button.textContent = index + 1;
+        button.onclick = () => goToQuestion(index);
+        mapGrid.appendChild(button);
+      });
+    }
+
+    function goToQuestion(index) {
+      currentQuestionIndex = index;
+      selectedAnswer = userAnswers[index];
+      displayQuestion();
+    }
+
+    function selectAnswer(value) {
+      if (userAnswers[currentQuestionIndex] !== null) return;
+      selectedAnswer = (selectedAnswer === value) ? null : value;
+      displayQuestion();
+    }
+
+    function submitAnswer(isAutoSubmit = false) {
+      if (selectedAnswer === null && !isAutoSubmit) { return; }
+      clearInterval(quizTimer);
+      const answer = selectedAnswer;
+      userAnswers[currentQuestionIndex] = answer;
+      selectedAnswer = null;
+      displayQuestion();
+      if (userAnswers.every(a => a !== null) && currentQuestionIndex >= shuffledQuizQuestions.length - 1) {
+        showResults();
+      }
+    }
+
+    function retryQuestion() {
+      userAnswers[currentQuestionIndex] = null;
+      selectedAnswer = null;
+      displayQuestion();
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        goToQuestion(currentQuestionIndex - 1);
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < shuffledQuizQuestions.length - 1) {
+        goToQuestion(currentQuestionIndex + 1);
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      let correctCount = 0;
+      let incorrectItems = [];
+      shuffledQuizQuestions.forEach((q, i) => {
+        if (userAnswers[i] === q.correctOption) {
+          correctCount++;
+        } else {
+          incorrectItems.push({
+            qNum: i + 1,
+            question: q.question,
+            userAnswer: userAnswers[i] ? q.options[parseInt(userAnswers[i]) - 1] : '(Bỏ qua)',
+            correctAnswer: q.options[parseInt(q.correctOption) - 1],
+            explanation: q.explanation || "(Không có giải thích)"
+          });
+        }
+      });
+      const score = (correctCount / shuffledQuizQuestions.length * 100).toFixed(2);
+      const resultsDiv = document.getElementById("quizResults");
+      resultsDiv.innerHTML = `
+        <div class="fade-in text-center p-6 bg-white rounded-xl shadow-xl border border-slate-200">
+          <h2 class="text-2xl font-bold text-slate-800 mb-2">🏆 Hoàn thành bài thi!</h2>
+          <p class="text-lg text-slate-600">Điểm số của bạn:</p>
+          <p class="text-6xl font-bold text-indigo-600 my-4">${score}%</p>
+          <div class="flex justify-center gap-6 text-slate-700">
+            <p><strong>Đúng:</strong> <span class="font-bold text-green-600">${correctCount}</span></p>
+            <p><strong>Sai:</strong> <span class="font-bold text-red-600">${shuffledQuizQuestions.length - correctCount}</span></p>
+            <p><strong>Tổng:</strong> <span class="font-bold">${shuffledQuizQuestions.length}</span></p>
+          </div>
+          <div class="flex justify-center gap-3 mt-8">
+            <button onclick="startQuiz()" class="bg-indigo-600 text-white font-semibold hover:bg-indigo-700 px-5 py-2 rounded-lg shadow-md transition-all duration-200 active:scale-95 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" /></svg>
+              Làm lại
+            </button>
+            <button onclick="returnToQuizStart()" class="bg-slate-200 text-slate-800 font-semibold hover:bg-slate-300 px-5 py-2 rounded-lg transition-all duration-200 active:scale-95 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+              Trở lại
+            </button>
+          </div>
+          ${incorrectItems.length > 0 ? `
+            <div class="mt-8 pt-6 border-t border-slate-200 text-left">
+			<h3 class="text-xl font-bold text-slate-700 mb-4">📝 Xem lại các câu sai</h3>
+              <div class="space-y-4 max-h-96 overflow-y-auto p-4 bg-slate-50 rounded-lg">
+                ${incorrectItems.map(item => `
+                  <div class="p-4 bg-white border border-red-200 rounded-xl shadow-sm">
+                    <p class="font-bold text-slate-800 math-content">Câu ${item.qNum}: ${item.question}</p>
+                    <p class="text-sm text-red-600 mt-2"><strong>Bạn chọn:</strong> <span class="math-content">${item.userAnswer}</span></p>
+                    <p class="text-sm text-green-600 mt-1"><strong>Đáp án đúng:</strong> <span class="math-content">${item.correctAnswer}</span></p>
+                    <p class="text-sm text-slate-600 mt-1"><strong>Giải thích:</strong> <span class="math-content">${item.explanation}</span></p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>` : ''}
+        </div>
+      `;
+      document.getElementById("quizContent").classList.add("hidden");
+      resultsDiv.classList.remove("hidden");
+      document.getElementById("progressBarContainer").classList.add("hidden");
+      document.getElementById("countdown").classList.add("hidden");
+      renderMath();
+    }
+
+     function initialize() {
+      // --- BẮT ĐẦU PHẦN DỮ LIỆU TÍCH HỢP ---
+
+      // Dữ liệu từ file BT1.json
+      const on_luyen_questions = [
+        { "question": "Đặc trưng của chiến lược “diễn biến hòa bình” là sử dụng:", "options": [ "Biện pháp phi quân sự", "Biện pháp kinh tế", "Thủ đoạn vũ trang", "Chính sách ngoại giao" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Để cùng cả nước phòng chống chiến lược “diễn biến hòa bình”, BLLĐ, sinh viên phải:", "options": [ "Nâng cao đời sống vật chất, tinh thần cho công nhân và nhân dân lao động", "Chăm lo xây dựng lực lượng vũ trang ở địa phương vững mạnh toàn diện", "Đẩy mạnh sự nghiệp công nghiệp hóa, hiện đại hóa đưa đất nước phát triển", "Phát hiện và góp phần đấu tranh đánh bại mọi âm mưu, thủ đoạn của kẻ thù" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Chủ nghĩa đế quốc và các thế lực thù địch thực hiện chiến lược “diễn biến hòa bình” đối với Việt Nam từ khi nào?", "options": [ "1976", "1973", "1979", "1975" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Chủ nghĩa đế quốc và các thế lực thù địch sử dụng chiến lược “diễn biến hòa bình” đối với Việt Nam nhằm:", "options": [ "Lật đổ chế độ, theo quỹ đạo của chúng", "Xóa bỏ vai trò lãnh đạo của Đảng", "Tự do hóa đời sống chính trị, xã hội", "Xóa bỏ hệ thống chính trị, kinh tế" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Phòng chống chiến lược “diễn biến hòa bình”, BLLĐ, chúng ta phải thực hiện giải pháp:", "options": [ "Xây dựng cơ sở chính trị - xã hội vững mạnh về mọi mặt", "Xây dựng lòng yêu nước cho tuổi trẻ nhất là học sinh, sinh viên", "Đẩy mạnh công nghiệp hóa, chống nguy cơ tụt hậu kinh tế", "Đẩy lùi các hủ tục lạc hậu, mê tín dị đoan và các tệ nạn xã hội" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Chủ nghĩa đế quốc và các thế lực thù địch kích động người H’Mông đòi thành lập khu tự trị riêng ở:", "options": [ "Vùng Tây Bắc", "Vùng Tây Nguyên", "Vùng Tây Nam Bộ", "Vùng Đông Bắc" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Lực lượng tiến hành bạo loạn lật đổ thường là:", "options": [ "Lực lượng ly khai, đối lập trong nước hoặc cấu kết với nước ngoài", "Lực lượng ly khai phối hợp với lực lượng dân chủ, nhân quyền", "Lực lượng đối lập phối hợp chặt chẽ với lực lượng ly khai bên ngoài", "Lực lượng bất mãn chống đối trong nước cấu kết với kẻ thù từ bên ngoài" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Bạo loạn lật đổ có thể xẩy ra ở nhiều nơi, nhiều vùng của đất nước, trọng điểm là:", "options": [ "Các trung tâm văn hóa, khoa học", "Các trung tâm chính trị, kinh tế", "Các khu công nghệ, kỹ thuật cao", "Các khu công nghiệp tập trung" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Trong chiến lược “diễn biến hòa bình”, đối với sinh viên, kẻ thù đặc biệt coi trọng:", "options": [ "Tuyên truyền lối sống tư sản, tham gia hoạt động các tổ chức phi chính phủ", "Kích động đòi yêu sách, phúc lợi xã hội và tham gia các tổ chức phản động", "Khích lệ lối sồng tư sản, từng bước làm phai nhạt mục tiêu XHCN", "Khích lệ lối sống tự do, xuống đường đấu tranh đòi dân chủ phương Tây" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Vị Tổng thống Mỹ đã bổ sung, hình thành và công bố thực hiện chiến lược “ngăn chặn” chủ nghĩa cộng sản là:", "options": [ "Kennơđi", "Truman", "Kenman", "Aixenhao" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Trong chiến lược “diễn biến hòa bình”, đối với quân đội, công an, các thế lực thù địch chủ trương vô hiệu hóa sự lãnh đạo của Đảng với luận điểm:", "options": [ "Phi chính trị hóa", "Lực lượng hóa", "Công cụ hóa", "Xã hội hóa" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Thực hiện thủ đoạn “diễn biến hòa bình” về văn hóa, kẻ thù tập trung tấn công vào:", "options": [ "Truyền thống kinh nghiệm của văn hóa Việt Nam", "Nền văn hóa và sản phẩm văn hóa dân tộc Việt Nam", "Những sản phẩm văn hóa quý báu của chúng ta", "Bản sắc văn hóa và giá trị văn hóa của dân tộc Việt Nam" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Trước những thắng lợi của công cuộc đổi mới toàn diện ở Việt Nam, chủ nghĩa đế quốc và các thế lực thù địch đã tuyên bố xóa bỏ cấm vận, bình thường hóa quan hệ để chuyển sang những thủ đoạn mới, đẩy mạnh hoạt động xâm nhập:", "options": [ "Lôi kéo, công khai, hiểm, sâu", "Xúi dục, can thiệp, ngầm, sâu", "Dính líu, ngầm, sâu, hiểm", "Can thiệp, thâm độc, hiểm, sâu" ], "correctOption": "3", "difficulty": "hard", "explanation": "", "optionCount": 4 },
+        { "question": "Để nhanh chóng đạt được mục đích của “diễn biến hòa bình”, chủ nghĩa đế quốc và các thế lực thù địch thường tiến hành thủ đoạn:", "options": [ "Can thiệp quân sự", "Hành động bạo lực", "Bạo loạn vũ trang", "Bạo loạn lật đổ" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Hoa Kỳ xóa bỏ lệnh cấm vận kinh tế đối với Việt Nam từ:", "options": [ "03/02/1994", "03/02/1995", "03/02/1995", "02/03/1994" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Hình thức của bạo loạn lật đổ gồm có:", "options": [ "Bạo loạn chính trị, bạo loạn vũ trang, hoặc bạo loạn chính trị với vũ trang", "Bạo loạn chính trị kết hợp với quân sự hoặc chính trị kết hợp với kinh tế", "Bạo loạn chính trị với gây rối hoặc kết hợp gây rối với hành động phá hoại", "Bạo loạn vũ trang, bạo loạn chính trị hoặc bạo loạn chính trị với gây rối" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Phòng chống chiến lược “diễn biến hòa bình”, bạo loạn lật đổ ở nước ta hiện nay, chúng ta phải thực hiện giải pháp:", "options": [ "Nâng cao tinh thần yêu nước, hăng hái lao động sản xuất và tích cực phòng chống thiên tai cho nhân dân", "Nâng cao ý thức dân tộc, yêu Tổ quốc, yêu đồng bào, trách nhiệm công dân cho tuổi trẻ nhất là học sinh, sinh viên", "Nâng cao nhận thức về âm mưu, thủ đoạn của các thế lực thù địch , nắm chắc mọi diễn biến không để bị động và bất ngờ.", "Nâng cao đời sống vật chất, tinh thần cho nhân dân, đẩy lùi các hủ tục lạc hậu, mê tín dị đoan và các tệ nạn xã hội" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những mục tiêu phòng chống chiến lược “diễn biến hòa bình”, bạo loạn lật đổ ở nước ta là:", "options": [ "Bảo vệ chủ quyền lãnh thổ của quốc gia và bảo vệ nhân dân", "Bảo vệ hệ thống chính trị, các tổ chức quần chúng và văn hóa", "Bảo vệ vững chắc nền văn hóa và những giá trị tinh thần của dân tộc", "Bảo vệ an ninh quốc gia, trật tự an toàn xã hội và nền văn hóa" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Vùng lãnh thổ của nước ta mà kẻ thù kích động đồng bào đòi ly khai thành lập nhà nước Đề-ga:", "options": [ "Tây Nguyên", "Tây Nam", "Đông Bắc", "Tây Bắc" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Chiến lược “diễn biến hòa bình” bắt đầu hình thành từ:", "options": [ "Năm 1960", "Năm 1945", "Năm 1954", "Năm 1930" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nội dung kẻ thù chống phá về chính trị trong “diễn biến hòa bình” là:", "options": [ "Phá vỡ hệ thống nguyên tắc tổ chức trong bộ máy lãnh đạo Đảng, Nhà nước ta", "Chia rẽ mối quan hệ giữa Đảng với nhân dân và khối đại đoàn kết toàn dân tộc", "Chia rẽ sự thống nhất của các tổ chức, nhất là tổ chức chính trị, quân sự", "Phá vỡ hệ thống nguyên tắc tổ chức của Đảng, chính quyền, tổ chức đoàn thể" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Nội dung nào sau đây là một trong những giải pháp phòng chống chiến lược “diễn biến hòa bình”, bạo loạn lật đổ?", "options": [ "Đẩy mạnh công nghiệp hóa, hiện đại hóa đất nước, chống nguy cơ lạc hậu về kinh tế, khắc phục các tiêu cực trong xã hội", "Đẩy mạnh công nghiệp hóa, hiện đại hóa đất nước và chăm lo nâng cao đời sống vật chất, tinh thần cho nhân dân lao động", "Xây dựng Đảng vững mạnh, xây dựng tinh thần đoàn kết và xây dựng các tổ chức quần chúng vững mạnh", "Đẩy lùi các hủ tục lạc hậu, mê tín dị đoan và các tệ nạn xã hội, chăm lo đời sống vật chất, tinh thần cho nhân dân lao động." ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những mục tiêu phòng chống chiến lược “diễn biến hoà bình”:", "options": [ "Bảo vệ vững chắc độc lập, chủ quyền, thống nhất, toàn vẹn lãnh thổ", "Bảo vệ vững chắc chế độ nhà nước Việt Nam XHCN", "Bảo vệ vững chắc độc lập, chủ quyền của quốc gia, dân tộc", "Giữ vững ổn định chính trị trên cơ sở độc lập chủ quyền dân tộc" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Nội dung nào sau đây là trách nhiệm của sinh viên trong phòng chống chiến lược “diễn biến hòa bình”, bạo loạn lật đổ ?", "options": [ "Thường xuyên xây dựng cơ sở chính trị - xã hội vững mạnh", "Xây dựng ý thức bảo vệ Tổ quốc cho toàn dân", "Thường xuyên nêu cao tinh thần cảnh giác cách mạng", "Xây dựng và luyện tập các phương án chống bạo loạn lật đổ" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Quan hệ giữa “diễn biến hòa bình” và bạo loạn lật đổ:", "options": [ "“Diễn biến hòa bình” là quá trình tạo thời cơ quan trọng nhất cho bạo loạn lật đổ", "“Diễn biến hòa bình” là quá trình tạo nên những điều kiện, thời cơ cho bạo loạn lật đổ", "“Diễn biến hòa bình” là quá trình tạo yếu tố quyết định cho bạo loạn lật đổ.", "“Diễn biến hòa bình” là quá trình đưa đến nguyên nhân và điều kiện của bạo loạn lật đổ" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Chủ nghĩa đế quốc và các thế lực thù địch chống phá cách mạng nước ta hiện nay là toàn diện, trên tất cả các lĩnh vực của đời sống xã hội với:", "options": [ "Nhiều thủ đoạn tinh vi khó nhận biết", "Nhiều hình thức tinh vi khó nhận rõ", "Các thủ đoạn xảo quyệt dễ nhận được", "Các biện pháp khôn khéo khó nhận ra" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Thực hiện thủ đoạn chính trị trong chiến lược “diễn biến hòa bình”, các thế lực thù địch thường khai thác, tận dụng những sơ hở trong đường lối, chủ trương, chính sách của Đảng, nhà nước ta để kích động:", "options": [ "Quần chúng biểu tình, chống đối", "Nhân dân gây rối chính quyền", "Công nhân đình công phản đối", "Học sinh, sinh viên đình công" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Khởi đầu thực hiện bạo loạn lật đổ, các thế lực thù địch thường tiến hành:", "options": [ "Tập hợp lực lượng, tuyên truyền nói xấu chế độ", "Gây rối, làm mất ổn định trật tự an toàn xã hội", "Ngăn chặn, gây rối, chống người thi hành công vụ", "Bạo động, đập phá gây mất trật tự nơi công cộng" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Cơ sở manh nha hình thành chiến lươc “diễn biến hòa bình” là:", "options": [ "Thất bại trong chiến tranh thế giới lần thứ hai", "Lôi kéo các nước tiến bộ ở Tây Âu phụ thuộc vào Mỹ", "Phá hoại các nước XHCN còn non yếu", "Thực hiện chiến lược “ngăn chặn” chủ nghĩa cộng sản" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Để đạt được ý đồ thống trị thế giới và xóa bỏ các nước XHCN còn lại, chủ nghĩa đế quốc tiếp tục điều chỉnh chiến lược toàn cầu, trong đó chiến lược “diễn biến hòa bình” là:", "options": [ "Bộ phận chủ yếu", "Bộ phận trọng yếu", "Bộ phận quan trọng", "Bộ phận quyết định" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Để chống phá các nước tiến bộ, trước hết là các nước XHCN, chủ nghĩa đế quốc và các thế lực thù địch thực hiện “diễn biến hòa bình”, bạo loạn lật đổ với:", "options": [ "Cô lập ngoại giao", "Cấm vận kinh tế", "Răn đe quân sự", "Dân chủ, nhân quyền" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những chiêu bài mà chủ nghĩa đế quốc và các thế lực thù địch sử dụng trong “diễn biến hòa bình” đối với Việt Nam là:", "options": [ "Nhân quyền, bình đẳng", "Bình đẳng, tự do", "Dân chủ, nhân quyền", "Tự do, dân chủ" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Trong các nhiệm vụ QPAN hiện nay ở nước ta, phòng, chống chiến lược “diễn biến hòa bình” là:", "options": [ "Nhiệm vụ chiến lược hàng đầu", "Nhiệm vụ cấp bách hàng đầu", "Nhiệm vụ cơ bản hàng đầu", "Nhiệm vụ thường xuyên hàng đầu" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Đảng ta xác định nội dung bảo vệ Tổ quốc Việt Nam XHCN hiện nay là toàn diện, vì kẻ thù thực hiện chiến lược “diễn biến hòa bình”:", "options": [ "Với bao vây cấm vận, cô lập ngoại giao, răn đe quân sự", "Kết hợp với răn đe quân sự, biểu tình và bạo loạn lật đổ", "Kết hợp với các biện pháp vũ trang và phi vũ trang", "Với nhiều đòn tiến công trên tất cả mọi lĩnh vực" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Nhiệm vụ cấp bách hàng đầu trong các nhiệm vụ QPAN ở nước ta là:", "options": [ "Phòng chống tội phạm, tệ nạn xã hội và bảo vệ an ninh quốc gia", "Phòng chống địch tiến công hỏa lực bằng vũ khí công nghệ cao", "Phòng chống địch lợi dụng vấn đề dân tộc, tôn giáo", "Phòng chống chiến lược “diễn biến hòa bình”, bạo loạn lật đổ" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Trong chiến lược “diễn biến hòa bình”, thủ đoạn về kinh tế được kẻ thù xác định là:", "options": [ "Thủ đoạn mũi nhọn", "Thủ đoạn cơ bản", "Thủ đoạn hàng đầu", "Thủ đoạn chủ yếu" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Trong quá trình bạo loạn, bọn phản động tìm mọi cách để mở rộng:", "options": [ "Pham vi, quy mô, lực lượng, kêu gọi tài trợ của nước ngoài", "Quy mô, lực lượng, kêu gọi nước ngoài can thiệp quân sự", "Lực lượng, uy hiếp chính quyền địa phương, trung ương", "Phạm vi, lực lượng, đập phá trụ sở Đảng, chính quyền" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Nguyên tắc xử lý khi có bạo loạn diễn ra là:", "options": [ "Nhanh gọn, linh hoạt, mạnh mẽ, đúng đối tượng, không để lan rộng, kéo dài", "Kiên quyết, triệt để, nhẹ nhàng, đúng đối tượng, không để lan rộng, kéo dài", "Kiên quyết, triệt để, đúng đối tượng, không để dây dưa, lan rộng, kéo dài", "Nhanh gọn, kiên quyết, linh hoạt, đúng đối tượng, không để lan rộng, kéo dài" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Nhiệm vụ phòng chống chiến lược “diễn biến hòa bình”, bạo loạn lật đổ được xác định là nhiệm vụ:", "options": [ "Cấp bách hàng đầu, thường xuyên và lâu dài", "Cơ bản trong thời kỳ quá độ XHCN", "Trọng tâm lâu dài của cách mạng Việt Nam", "Chủ yếu, cấp bách trước mắt cũng như lâu dài" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "“Bạo loạn lật đổ” là thủ đoạn gắn liền với:", "options": [ "Biện pháp “ngăn chặn chủ nghĩa cộng sản”", "Chiến lươc “diễn biến hòa bình”", "Chính sách “cấm vận kinh tế, cô lập ngoại giao”", "Chiến lược “phi quân sự”" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Mục tiêu của chủ nghĩa đế quốc và các thế lực thù địch sử dụng chiến lược “diễn biến hòa bình” đối với Việt Nam là:", "options": [ "Xóa bỏ chế độ XHCN", "Xóa bỏ hệ thống chính trị - xã hội", "Thực hiện chế độ đa nguyên chính trị", "Thực hiện tự do chính trị - xã hội" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Hoa Kỳ bình thường hóa quan hệ với Việt Nam từ:", "options": [ "11/7/1995", "07/11/1995", "07/11/1996", "11/7/1996" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Thực hiện chiến lược “diễn biến hòa bình”, chủ nghĩa đế quốc và các thế lực thù địch cho rằng, phải làm xói mòn tư tưởng, đạo đức, niềm tin cộng sản của thế hệ trẻ để:", "options": [ "Tự đấu tranh, đòi yêu sách, dẫn đến bạo loạn lật đổ các nước XHCN còn lại", "Tự diễn biến, tự suy yếu, dẫn đến sự sụp đổ, tan rã của các nước XHCN còn lại", "Gây mất đoàn kết, tạo mâu thuẫn, tự đấu tranh dẫn đến sụp đổ các nước XHCN", "Tự diễn biến, gây mâu thuẫn, kích động biểu tình, bạo loạn lật đổ chế độ XHCN" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Chủ nghĩa đế quốc và các thế lực thù địch thực hiện chiến lược “diễn biến hòa bình” đối với Việt Nam từ khi nào?", "options": [ "Sau thất bại chiến tranh xâm lược Việt Nam", "Sau biến động chế độ XHCN ở Liên Xô", "Khi đưa quân vào xâm lược miền Nam", "Khi Việt Nam tiến hành sự nghiệp đổi mới" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Thực hiện thủ đoạn chống phá về chính trị trong chiến lược “diễn biến hòa bình” đối với cách mạng Việt Nam, kẻ thù tiến hành:", "options": [ "Cô lập Đảng, Nhà nước với quân đội nhân dân và công an nhân dân.", "Kích động đòi thực hiện chế độ “đa nguyên chính trị, đa đảng đối lập”", "Phá vỡ khối đại đoàn kết toàn dân của các tổ chức chính trị, xã hội", "Chia rẽ nội bộ, kích động gây rối loạn các tổ chức trong xã hội" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nội dung chống phá về kinh tế của chiến lược “diễn biến hòa bình” là:", "options": [ "Kêu gọi kinh tế cá thể phát triển, từng bước đưa kinh tế tư nhân thay thế kinh tế quốc doanh", "Làm mất vai trò chủ đạo của kinh tế Nhà nước, từng bước lệ thuộc chủ nghĩa đế quốc", "Khuyến khích kinh tế nước ngoài phát triển giữ vai trò chủ đạo của kinh tế đất nước", "Phát triển nhanh kinh tế tư bản Nhà nước, giữ vai trò chủ đạo của kinh tế đất nước" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Từ sau thất bại ở Việt Nam, Mỹ đã từng bước thay đổi chiến lược chuyển từ tiến công bằng sức mạnh quân sự là chính, sang tiến công bằng:", "options": [ "Đánh đòn phủ đầu là chủ yếu", "Chiến lược ngăn chặn là chủ yếu", "“Diễn biến hòa bình” là chủ yếu", "Vượt trên ngăn chặn là chủ yếu" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Mục đích chống phá tư tưởng - văn hóa trong chiến lược “diễn biến hòa bình” là:", "options": [ "Xóa bỏ tư tưởng vô sản, thiết lập tư tưởng tư sản", "Xóa bỏ đường lối chính trị của Đảng Cộng sản", "Xóa bỏ chủ nghĩa Mác Lênin, tư tưởng Hồ Chí Minh", "Xóa bỏ nguồn gốc tư tưởng XHCN" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Thực hiện thủ đoạn trong lĩnh vực tôn giáo, dân tộc của chiến lược “diễn biến hòa bình”, kẻ thù lợi dụng vấn đề dân tộc để kích động tư tưởng:", "options": [ "Đòi ly khai, tự quyết dân tộc", "Chia rẽ các dân tộc, gây mâu thuẫn", "Gây mâu thuẫn giữa các dân tộc", "Đòi biểu tình, ly khai lập khu tự trị" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Thủ đoạn trên lĩnh vực QPAN trong chiến lược “diễn biến hòa bình” là:", "options": [ "Phủ nhận vai trò lãnh đạo của Đảng trong lĩnh vực QPAN", "Chia rẽ quân đội, công an, dân quân tự vệ và bộ đội biên phòng", "Phủ nhận vai trò quốc phòng - an ninh trong sự nghiệp đổi mới", "Mua chuộc cán bộ cao cấp của quân đội và lực lượng vũ trang" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Đấu tranh phòng chống chiến lược “diễn biến hòa bình” ở nước ta là một cuộc đấu tranh:", "options": [ "Dân tộc gay go, một mất một còn trên mọi lĩnh vực của đời sống xã hội", "Giai cấp, dân tộc gay go, quyết liệt, lâu dài và phức tạp trên mọi lĩnh vực.", "Chính trị lâu dài, phức tạp giữa chủ nghĩa tư bản và CNXH", "Đối đầu lịch sử giai cấp gay go, quyết liệt và phức tạp trên mọi lĩnh vực" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Thực hiện chiến lược “diễn biến hòa bình” chống phá CNXH, CNĐQ và các thế lực thù địch luôn coi Việt Nam là:", "options": [ "Một trọng tâm", "Một trọng điểm", "Vấn đề trọng điểm", "Vấn đề cơ bản" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Đẩy mạnh chiến lược “diễn biến hòa bình” ở nước ta, chủ nghĩa đế quốc và các thế lực thù địch thường triệt để khai thác và lợi dụng những khó khăn, sai sót của Đảng, Nhà nước tạo nên sức ép, từng bước chuyển hóa để:", "options": [ "Thay đổi đường lối chính trị, đi theo quỹ đạo chủ nghĩa tư bản", "Thay đổi chế độ, theo phương tây để được bảo hộ của tư bản", "Lôi kéo quần chúng nhân dân đi theo chúng để được giàu có", "Gây mâu thuẫn, kích động nhân dân bạo loạn vũ trang" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Đảng ta xác định rõ nội dung bảo vệ Tổ quốc Việt Nam XHCN là toàn diện, trong đó coi trọng:", "options": [ "An ninh kinh tế, chính trị, văn hóa, tư tưởng", "An ninh chính trị, xã hội, biên giới, biển đảo", "An ninh kinh tế, chính trị, trật tự xã hội, lãnh thổ", "An ninh chính trị, đối ngoại, trật tự an toàn xã hội" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Trong phòng chống chiến lược “diễn biến hòa bình”, bạo loạn lật đổ, chúng ta phải:", "options": [ "Bảo vệ quốc gia, dân tộc và an ninh, trật tự an toàn xã hội", "Bảo vệ đường lối đổi mới và quyền làm chủ của nhân dân", "Bảo vệ vững chắc hòa bình, sự nghiệp phát triển kinh tế", "Bảo vệ sự nghiệp đổi mới, lợi ích quốc gia, lợi ích dân tộc" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Đối với Việt Nam, sau thất bại về quân sự (năm 1975), chủ nghĩa đế quốc và các thế lực thù địch chuyển sang chiến lược “diễn biến hòa bình” với nhiều thủ đoạn như:", "options": [ "Bao vây cấm vận kinh tế, cô lập về ngoại giao", "Bao vây, phong tỏa chính trị, quân sự, an ninh", "Cấm vận kinh tế, văn hóa và cô lập ngoại giao", "Cấm vận triệt để về chính trị, quân sự, văn hóa" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Biện pháp của chủ nghĩa đế quốc và các thế lực phản động tiến hành chiến lược “diễn biến hòa bình” là:", "options": [ "Biện pháp phi quân sự", "Biện pháp ngoại giao", "Biện pháp quân sự", "Biện pháp bạo loạn" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Thủ đoạn về chính trị trong chiến lược “diễn biến hòa bình”, được kẻ thù xác định là:", "options": [ "Thủ đoạn chủ yếu", "Thủ đoạn hậu thuẫn", "Thủ đoạn cơ bản", "Thủ đoạn hàng đầu" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những giải pháp phòng chống chiến lược “diễn biến hòa bình”, BLLĐ:", "options": [ "Đẩy mạnh công nghiệp hóa hiện đại hóa, chống tụt hậu kinh tế", "Chăm lo xây dựng lực lượng vũ trang ở địa phương vững mạnh", "Xây dựng hệ thống chính trị cả nước vững mạnh toàn diện", "Xây dựng lòng yêu nước cho tuổi trẻ nhất là học sinh, sinh viên" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Chủ trương vô hiệu hóa sự lãnh đạo của Đảng, thực hiện âm mưu “phi chính trị hóa” của chủ nghĩa đế quốc và các thế lực thù địch trong “diễn biến hòa bình” nhằm làm cho quân đội nhân dân Việt Nam:", "options": [ "Mất tính kiên cường, bất khuất, xa rời CNXH", "Phai nhạt vai trò nòng cốt, xa rời quần chúng nhân dân", "Mất bản chất nhân dân, mất truyền thống chống ngoại xâm", "Mất bản chất cách mạng, xa rời mục tiêu chiến đấu" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Nội dung chính của chiến lược “diễn biến hòa bình” là kẻ thù sử dụng mọi thủ đoạn kinh tế, chính trị, văn hóa, xã hội, tư tưởng, đối ngoại, quốc phòng, an ninh… để:", "options": [ "Phá hoại các nước từ bên trong để dễ dàng tiến công từ bên ngoài", "Chia rẽ, gây mâu thuẫn để các nước xẩy ra xung đột, lấy cớ tiến công", "Chia rẽ, thành lập các tổ chức phản động để can thiệp quân sự", "Phá hoại, làm suy yếu các nước XHCN từ bên trong" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Thực hiện thủ đoạn “diễn biến hòa bình” trong lĩnh vực tôn giáo - dân tộc, kẻ thù triệt để lợi dụng chính sách tự do tôn giáo của Đảng ta để:", "options": [ "Truyền đạo trái phép nhằm thực hiện âm mưu tôn giáo hóa dân tộc", "Xây dựng lực lượng phản động làm tay sai chống phá cách mạng", "Truyền bá mê tín dị đoan và tư tưởng phản động chống CNXH", "Tuyên truyền để tập hợp lực lượng phản động chống phá cách mạng" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Các thế lực thù địch lợi dụng gây rối để:", "options": [ "Mở màn cho hoạt động phá hoại", "Mở đầu cho hành động phá hoại", "Mở màn cho bạo loạn lật đổ", "Làm mất an ninh chính trị" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Phòng chống chiến lược “diễn biến hòa bình”, bạo loạn lật đổ, chúng ta phải:", "options": [ "Nâng cao nhận thức về âm mưu phá hoại của kẻ thù.", "Xây dựng ý thức bảo vệ Tổ quốc cho toàn dân", "Xây dựng các lực lượng vũ trang đặc biệt là công an vững mạnh", "Xây dựng các tổ chức chính trị, tổ chức quần chúng vững chắc" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Chiến lược “diễn biến hòa bình” được bắt nguồn từ:", "options": [ "Nước Pháp", "Nước Đức", "Nước Mỹ", "Nước Nga" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "“Diễn biến hòa bình” là:", "options": [ "Phương thức chủ yếu của chủ nghĩa đế quốc và các thế lực phản động", "Chiến lược cơ bản của chủ nghĩa đế quốc và các thế lực phản động", "Sách lược chủ yếu của chủ nghĩa đế quốc và các thế lực phản động", "Thủ đoạn cơ bản của chủ nghĩa đế quốc và các thế lực phản động" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Thực hiện chiến lược “diễn biến hòa bình” chủ nghĩa đế quốc và các thế lực thù địch lợi dụng sự viện trợ, giúp đỡ kinh tế, đầu tư vốn, chuyển giao công nghệ cho Việt Nam để gây sức ép về chính trị, từng bước chuyển hóa Việt Nam theo con đường tư bản chủ nghĩa là một trong những nội dung của:", "options": [ "Biện pháp về chính trị", "Thủ đoạn về kinh tế", "Biện pháp về kinh tế", "Thủ đoạn về đối ngoại" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Chống phá trên lĩnh vực đối ngoại trong chiến lược “diễn biến hòa bình” kẻ thù thực hiện thủ đoạn:", "options": [ "Chia rẽ Việt Nam với các nước tiến bộ, yêu chuộng hòa bình", "Chia rẽ Việt Nam với Campuchia và các nước tiến bộ trên thế giới", "Chia rẽ Việt Nam với Lào, Campuchia và các nước XHCN", "Chia rẽ Việt Nam với Lào và các nước XHCN còn lại" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Thực hiện chiến lược “diễn biến hòa bình”, chủ nghĩa đế quốc và các thế lực thù địch khích lệ lối sống tư sản, từng bước làm phai nhạt mục tiêu, lý tưởng XHCN ở tầng lớp:", "options": [ "Người dân nghèo ở thành thị", "Học sinh, sinh viên thành thị", "Công nhân các khu công nghiệp", "Thanh niên, nhất là sinh viên" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Chống phá về chính trị trong chiến lược “diễn biến hòa bình”, kẻ thù âm mưu thực hiện:", "options": [ "Xóa bỏ vai trò lãnh đạo của Đảng và chế độ XHCN", "Phủ định chủ nghĩa Mác-Lênin, xóa bỏ CNXH", "Đối lập nhiệm vụ kinh tế và quốc phòng, an ninh trật tự", "Đối lập chủ nghĩa Mác-Lênin và tư tưởng Hồ Chí Minh" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 }
+      ];
+		
+		const on_luyen_2_questions = [
+        { "question": "Tôn giáo có nguồn gốc từ các yếu tố:", "options": [ "Kinh tế - xã hội, nhận thức và tâm lý", "Kinh tế - xã hội, ý thức và giáo lý", "Chính trị - quân sự, tâm lý và nhận thức", "Chính trị - xã hội, tâm lý và ý thức" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Tính chất của tôn giáo là:", "options": [ "Tính kế thừa,tính phát triển, tính chính trị", "Tính chính trị, tính chọn lọc, tính phát triển", "Tính lịch sử, tính quần chúng, tính chính trị", "Tính kế thừa, tính quần chúng, tính thực tiễn" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tôn trọng tự do tín ngưỡng là phải không ngừng tạo điều kiện cho quần chúng phát triển, tiến bộ về mọi mặt, bài trừ mê tín dị đoan, bảo đảm cho:", "options": [ "Tín dồ, chức sắc tôn giáo hoạt động theo đúng pháp luật", "Đồng bào tôn giáo tự do, bình đẳng trước pháp luật", "Giáo sỹ, tín dồ tôn giáo ngày càng phát triển bền vững", "Tôn giáo đoàn kết, phát triển theo kịp thế giới" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Tôn giáo ra đời, tồn tại, biến đổi phản ánh và phụ thuộc vào sự vận động, phát triển của tồn tại xã hội, nhưng nó sẽ mất đi khi con người làm chủ hoàn toàn tự nhiên, xã hội và tư duy, điều đó khẳng định:", "options": [ "Tính xã hội của tôn giáo", "Tính phức tạp của tôn giáo", "Tính lịch sử của tôn giáo", "Tính phát triển của tôn giáo" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Nội dung cốt lõi của công tác tôn giáo ở Việt Nam là vận động quần chúng:", "options": [ "Sống “tốt đời, đẹp đạo”", "“Kính chúa, yêu nước”", "Phải “từ bi, bác ái”.", "“Phúc âm trong lòng dân tộc”" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những quan điểm, chính sách dân tộc của Đảng, Nhà nước ta là:", "options": [ "Tập trung phát triển nhanh về văn hóa - xã hội cho các địa phương vùng đồng bào các dân tộc thiểu số", "Thực hiện tốt các chính sách, nhất là chính sách dân số, kế hoạch hóa gia đình cho đồng bào các dân tộc thiểu số", "Thực hiện chính sách ưu tiên trong đào tạo, bồi dưỡng cán bộ, trí thức là người dân tộc thiểu số", "Ưu tiên trong giáo dục cán bộ, nhân lực, vật lực cho các địa phương vùng đồng bào các dân tộc thiểu số" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Việc mở rộng giao lưu giữa các tổ chức tôn giáo Việt Nam với các tổ chức tôn giáo thế giới đã giúp cho việc tăng cường trao đổi thông tin, góp phần xây dựng tinh thần hớp tác hữu nghị, hiểu biết lẫn nhau vì:", "options": [ "Phù hợp với phát triển tôn giáo thế giới", "Lợi ích phát triển chung của các tôn giáo", "Lợi ích của các giáo hội và đất nước", "Sự phát triển toàn diện của đất nước" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những giải pháp cơ bản đấu tranh phòng chống các thế lực thù địch lợi dụng vấn đề dân tộc, tôn giáo là :", "options": [ "Kịp thời phát hiện, ngăn chặn đấu tranh có hiệu quả đối với những hành vi chống đối", "Chú trọng công tác tuyên truyền thông qua các già làng, trưởng bản, chức sắc tôn giáo", "Ra sức tuyên truyền, quán triệt quan điểm, chính sách dân tộc, tôn giáo của Đảng, Nhà nước", "Chăm lo nâng cao đời sống tinh thần và đoàn kết của đồng bào các dân tộc miền núi" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Việt Nam là một quốc gia dân tộc thống nhất gồm:", "options": [ "54 dân tộc cùng sinh sống", "52 dân tộc cùng sinh sống", "56 dân tộc cùng sinh sống", "57 dân tộc cùng sinh sống" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Vấn đề dân tộc theo quan điểm của chủ nghĩa Mác-Lênin, là phải gắn kết chặt chẽ với:", "options": [ "Bản chất quốc tế", "Vấn đề giai cấp", "Dân tộc, dân chủ", "Độc lập dân tộc" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Theo quan điểm của chủ nghĩa Mác-Lênin, vấn đề dân tộc là:", "options": [ "Vấn đề sách lược của cách mạng XHCN", "Vấn đề quan trọng của cách mạng XHCN", "Vấn đề cần thiết của cách mạng XHCN", "Vấn đề chiến lược của cách mạng XHCN" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nội dung giải quyết vấn đề dân tộc theo quan điểm của Lênin là:", "options": [ "Các dân tộc phải phân chia đẳng cấp rõ ràng", "Các dân tộc được tự chủ, tự trị", "Các dân tộc được quyền tự quyết", "Các dân tộc phải có nền văn hóa" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những đặc điểm của các dân tộc thiểu số ở Việt Nam là:", "options": [ "Cư trú tập trung", "Cư trú ở rừng núi", "Cư trú du canh, du cư", "Cư trú phân tán và xen kẽ" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Ngày nay thế giới đã phát triển, đời sống ngày càng được nâng cao nhưng con người vẫn tin vào tôn giáo, bởi vì:", "options": [ "Con người vẫn chưa hoàn toàn làm chủ tự nhiên và xã hội", "Trình độ dân trí trên thế giới phát triển chưa đồng đều", "Thế giới vẫn còn nhiều bất công, thiên tai, chiến tranh", "Con người chưa tin vào hiện thực khách quan" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những giải pháp cơ bản để vô hiệu hóa sự lợi dụng vấn đề dân tộc, tôn giáo ở Việt Nam của các thế lực thù địch là:", "options": [ "Tăng cường quản lý trật tự trị an, thực hiện tốt chính sách đền ơn đáp nghĩa, phát triển kinh tế - xã hội ở địa phương", "Tăng cường xây dựng củng cố khối đại đoàn kết toàn dân tộc, giữ vững ổn định chính trị - xã hội", "Thực hiện tốt chính sách đại đoàn kết dân tộc, bảo vệ, đấu tranh vạch trần các phần tử ly khai, phản động.", "Đẩy mạnh thực hiện chính sách xóa đói giảm nghèo, nêu cao cảnh giác không làm theo những kẻ tuyên truyền chống đối" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Vấn đề cốt lõi xuyên suốt trong công tác dân tộc ở nước ta hiện nay là:", "options": [ "Nâng cao đời sống vật chất, tinh thần, điều kiện sinh sống giữa các dân tộc", "Giải quyết các tệ nạn xã hội, ưu tiên phát triển toàn diện các dân tộc ít người", "Khắc phục sự chênh lệch giàu, nghèo, sự phân hóa trong xã hội hiện nay", "Khắc phục sự cách biệt về trình độ phát triển kinh tế - xã hội giữa các dân tộc" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những quan điểm, chính sách dân tộc của Đảng, Nhà nước ta là:", "options": [ "Chống tuyên truyền, lôi kéo kích động các dân tộc", "Chống mọi hành động áp đặt trong công tác dân tộc", "Chống các biểu hiện kỳ thị, hẹp hòi, chia rẽ dân tộc", "Chống phân biệt, đối xử khác nhau giữa các dân tộc" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nội dung giải quyết vấn đề dân tộc theo quan điểm của Lênin:", "options": [ "Các dân tộc hoàn toàn bình đẳng", "Các dân tộc phải có nền văn hóa chung.", "Các dân tộc phải ly khai, tự trị", "Các dân tộc phải phân chia đẳng cấp" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Để vô hiệu hóa sự lợi dụng vấn đề dân tộc, tôn giáo ở Việt Nam của các thế lực thù địch, giải pháp cơ bản nhất là thực hiện tốt:", "options": [ "Chính sách đại đoàn kết dân tộc", "Chính sách xóa đói, giảm nghèo", "Chính sách vận động quần chúng", "Chính sách dân tộc, tôn giáo" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những lý do dẫn đến vấn đề dân tộc còn tồn tại lâu dài là do:", "options": [ "Chủ nghĩa đế quốc thực hiện chiến lược “diễn biến hòa bình” trên thế giới", "Các dân tộc chưa đồng thời đứng lên đấu tranh chống chủ nghĩa đế quốc", "Sự chống phá của chủ nghĩa đế quốc đối với các dân tộc trên toàn thế giới", "Dân số và trình độ phát triển kinh tế - xã hội giữa các dân tộc không đều nhau" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Theo quan điểm chủ nghĩa Mác-Lênin, thực chất của vấn đề dân tộc là:", "options": [ "Sự va chạm, mâu thuẫn lợi ích giữa các dân tộc trong quốc gia đa dân tộc và giữa các quốc gia dân tộc với nhau trong quan hệ quốc tế", "Sự khác biệt về phong tục, tập quán, quyền lợi của nhau giữa các dân tộc trong một quốc gia đa dân tộc và giữa các quốc gia dân tộc với nhau trên thế giới", "Sự va chạm, đụng độ, mâu thuẫn trong quan hệ đời sống xã hội giữa các dân tộc trong một quốc gia đa dân tộc và giữa các quốc gia dân tộc với nhau trong quan hệ quốc tế", "Sự bất bình đẳng, phân biệt chủng tộc trong quá trình phát triển kinh tế, xã hội giữa các dân tộc trong quốc gia đa dân tộc và giữa các quốc gia dân tộc với nhau trong quan hệ quốc tế" ], "correctOption": "1", "difficulty": "hard", "explanation": "", "optionCount": 4 },
+        { "question": "Lợi dụng những khó khăn của đồng bào dân tộc ít người, những khuyết điểm trong thực hiện chính sách của một bộ phận cán bộ để kích động đòi ly khai, tự quyết dân tộc là một trong những nội dung của thủ đoạn “diễn biến hòa bình” trong lĩnh vực:", "options": [ "Dân tộc, tôn giáo", "An ninh lãnh thổ", "An ninh ninh biên giới", "Tư tưởng, văn hóa" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một dân tộc trong một quốc gia đa dân tộc có thể:", "options": [ "Chỉ sinh sống ở một quốc gia dân tộc", "Sinh sống ở nhiều vùng trên thế giới", "Chỉ sinh sống ở những vùng núi cao", "Sinh sống ở nhiều quốc gia dân tộc" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Để thực hiện thủ đoạn lợi dụng vấn đề dân tộc, tôn giáo chống phá cách mạng Việt Nam, các thế lực thù địch thường sử dụng chiêu bài:", "options": [ "“nhân quyền”, “dân chủ”, “tự do”", "“truyền đạo”, “dân chủ”, “tự do”", "“nhân quyền”, “kích động”, “dân chủ", "“dân chủ”, “tuyên truyền”, “tự do”" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Để đấu tranh phòng chống các thế lực thù địch lợi dụng vấn đề dân tộc, tôn giáo, chúng ta phải phát huy vai trò của:", "options": [ "Cả hệ thống chính trị", "Đồng bào các dân tộc, tôn giáo", "Các già làng, chức sắc tôn giáo", "Các tổ chức quần chúng" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Khái niệm dân tộc được hiểu theo nghĩa của một quốc gia là các thành viên cùng dân tộc sử dụng:", "options": [ "Nhiều ngôn ngữ để cùng giao tiếp", "Một ngôn ngữ chung để giao tiếp", "Chung một môi trường ngôn ngữ", "Một tiếng nói chung thống nhất" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những đặc điểm của các dân tộc ở Việt Nam là :", "options": [ "Mỗi dân tộc Việt nam đều có nền văn hóa riêng", "Mỗi dân tộc ở Việt Nam đều có sắc thái văn hóa riêng", "Các dân tộc Việt nam đều có chung phong tục, tập quán", "Các dân tộc Việt nam đều có các tôn giáo riêng" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tôn giáo có nguồn gốc từ các yếu tố :", "options": [ "Chính trị xã hội, tinh thần và tâm lý", "Kinh tế - xã hội, ý thức và hành vi", "Kinh tế - xã hội, nhận thức và tâm lý", "Chính trị-xã hội, kinh tế và tinh thần" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Các dân tộc thiểu số ở Việt Nam cư trú phân tán và xen kẽ trên địa bàn rộng lớn, chủ yếu là ở:", "options": [ "Rừng núi, trung du, biển đảo", "Vùng sâu, vùng xa, biển đảo", "Miền núi, biên giới, hải đảo", "Biên giới, vùng cao, hải đảo" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những giải pháp cơ bản đấu tranh phòng chống các thế lực thù địch lợi dụng vấn đề dân tộc, tôn giáo là:", "options": [ "Chăm lo nâng cao đời sống vật chất, tinh thần của đồng bào các dân tộc, các tôn giáo", "Kịp thời phát hiện, ngăn chặn đối phó có hiệu quả đối với những lực lượng phản động.", "Tạo điều kiện cho đồng bào các dân tộc, tôn giáo thực hiện tốt nghĩa vụ đối với đất nước.", "Chú trọng công tác thuyết phục đối với các già làng, trưởng bản, chức sắc tôn giáo." ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Việc phân biệt rõ hai mặt chính trị và tư tưởng trong giải quyết vấn đề tôn giáo nhằm:", "options": [ "Thống nhất tư tưởng trong các tôn giáo", "Thống nhất nhận thức cho mọi người", "Xây dựng khối đại đoàn kết toàn dân tộc", "Xây dựng tinh thần đoàn kết tôn giáo" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những đặc điểm của các dân tộc ở Việt Nam là các dân tộc ở nước ta có quy mô dân số và:", "options": [ "Trình độ phát triển đồng đều.", "Trình độ phát triển còn hạn chế", "Trình độ phát triển khá đồng đều", "Trình độ phát triển không đồng đều" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tôn giáo xuất hiện đầu tiên ở Việt Nam là:", "options": [ "Công giáo", "Tin lành", "Phật giáo", "Cao Đài" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Quyền tự do tín ngưỡng tôn giáo, được hiểu là:", "options": [ "Mọi người đều được tự do thờ cúng hoặc không thờ cúng", "Mọi người đều được tự do cầu trời, cầu tự cho mình", "Mọi người đều được tự do theo hoặc không theo tôn giáo", "Mọi người đều được tự do tin hay không tin ở thần linh" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Lĩnh vực trọng yếu mà các thế lực thù địch lợi dụng, lấy đó làm ngòi nổ để chống phá cách mạng Việt Nam là:", "options": [ "Vấn đề dân chủ, nhân quyền", "Vấn đề diễn biến hòa bình", "Vấn đề bạo loạn lật đổ", "Vấn đề dân tộc, tôn giáo" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Theo quan điểm của chủ nghĩa Mác-Lênin, giải quyết vấn đề dân tộc:", "options": [ "Vừa là quan điểm vừa là phương châm của nhà nước vô sản", "Vừa là mục tiêu vừa là động lực của cách mạng XHCN", "Vừa là mục tiêu vừa là phương thức của nhà nước XHCN", "Vừa là nội dung vừa là quan điểm của cách mạng XHCN" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Các Tôn giáo lớn ở nước ta hiện nay là:", "options": [ "Công giáo, Phật giáo, Tin Lành, Hòa Hảo, Cơ Đốc giáo, Chính thống giáo", "Phật giáo, Công giáo, Tin Lành, Hồi Giáo, Cao Đài, Hòa Hảo", "Phật giáo, Công giáo, Tin Lành, Cao Đài, Hòa Hảo, Anh giáo", "Phật giáo, Công giáo, Tin Lành, Ki Tô giáo, Ấn Độ giáo, Cơ Đốc giáo" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tăng cường xây dựng củng cố khối đại đoàn kết dân tộc, giữ vững ổn định chính trị xã hội là một trong những nội dung của:", "options": [ "Nội dung cơ bản đấu tranh phòng chống địch lợi dụng vấn đề dân tộc, tôn giáo", "Giải pháp cơ bản đấu tranh phòng chống địch lợi dụng vấn đề dân tộc, tôn giáo", "Vị trí quan trọng đấu tranh phòng chống địch lợi dụng vấn đề dân tộc, tôn giáo", "Nhiệm vụ đấu tranh phòng chống địch lợi dụng vấn đề dân tộc, tôn giáo" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nội dung tư tưởng Hồ Chí Minh về vấn đề dân tộc và giải quyết vấn đề dân tộc:", "options": [ "Khắc phục tàn dư tư tưởng phân biệt, kỳ thị dân tộc, tư tưởng dân tộc lớn, dân tộc hẹp hòi", "Thiết lập và mở rộng mối quan hệ khăng khít, gắn bó với các quốc gia, dân tộc trên thế giới.", "Xây dựng quan hệ sâu sắc, tốt đẹp, phong phú, hài hòa giữa các dân tộc", "Xây dựng tình đoàn kết hữu nghị, bình đẳng, tôn trọng và giúp đỡ nhau cùng phát triển" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những quan điểm, chính sách dân tộc của Đảng, Nhà nước ta là:", "options": [ "Vấn đề dân tộc và đoàn kết dân tộc có ý nghĩa sâu sắc trong sự nghiệp cách mạng Việt Nam", "Vấn đề dân tộc và đoàn kết dân tộc đi đôi với cải tạo xã hội cũ, xây dựng xã hội mới, xã hội văn minh, tốt đep", "Vấn đề dân tộc và đoàn kết dân tộc gắn liền với quá trình xây dựng và phát triển của cách mạng Việt Nam", "Vấn đề dân tộc và đoàn kết các dân tộc có vị trí chiến lược lâu dài trong sự nghiệp cách mạng Việt Nam" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Lòng biết ơn, sự tôn kính đối với những người có công khai phá tự nhiên và chống lại các thế lực áp bức trong tình cảm tâm lý con người là nguồn gốc:", "options": [ "Nhận thức của tôn giáo", "Tâm lý của tôn giáo", "Cảm xúc của tôn giáo", "Xã hội của tôn giáo" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Xuất phát từ lợi ích, những lực lượng xã hội khác nhau lợi dụng tôn giáo để thực hiện mục tiêu chính trị của mình, đó là:", "options": [ "Tính chính trị của tôn giáo", "Tính kinh tế của tôn giáo", "Tính xã hội của tôn giáo", "Tính lịch sử của tôn giáo" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tôn giáo đã trở thành nhu cầu tinh thần, đức tin, lối sống của một bộ phận không nhỏ đã thể hiện rõ:", "options": [ "Tính quần chúng của tôn giáo", "Tính rộng rãi của tôn giáo", "Tính phổ biến của tôn giáo", "Tính xã hội của tôn giáo" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Theo quan điểm của chủ nghĩa Mác-Lênin, giải quyết vấn đề tôn giáo trong cách mạng XHCN là phải quán triệt:", "options": [ "Quan điểm tôn trọng luật pháp", "Quan điểm tôn trọng giáo lý.", "Quan điểm lịch sử cụ thể", "Quan điểm tôn trọng quần chúng" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Quan hệ dân tộc, sắc tộc hiện nay trên thế giới diễn ra phức tạp, nóng bỏng ở phạm vi:", "options": [ "Châu Phi và châu Mỹ Latinh", "Châu Á và châu Âu, châu Mỹ", "Quốc gia, khu vực và quốc tế", "Các nước ASEAN và EU" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Nội dung vấn đề dân tộc và giải quyết vấn đề dân tộc theo tư tưởng Hồ Chí Minh là:", "options": [ "Thiết lập quan hệ với các quốc gia, dân tộc trên thế giới", "Xây dựng quan hệ sâu sắc, tốt đẹp, phong phú, hài hòa", "Toàn diện, phong phú, sâu sắc, khoa học và cách mạng", "Xây dựng tình đoàn kết, tôn trọng và giúp đỡ lẫn nhau" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Các thế lực thù địch vẫn luôn lợi dụng vấn đề tôn giáo, dân tộc để chống phá cách mạng Việt Nam, chúng gắn vấn đề “dân chủ”, “nhân quyền” với:", "options": [ "“Tự do tôn giáo” để chia rẽ tôn giáo, dân tộc", "“Tự do”, “dân chủ” để kích động biểu tình, bạo loạn", "“Dân chủ tôn giáo” để chia rẽ dân tộc, tôn giáo", "Chiến lược “diễn biến hòa bình”, bạo loạn lật đổ" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Tôn giáo có tính quần chúng, bởi vì:", "options": [ "Quần chúng dựa vào tâm linh trong mọi hoạt động", "Tôn giáo gắn liền với hoạt động xã hội của quần chúng", "Tôn giáo phản ánh sự khát vọng của quần chúng", "Quần chúng lấy tôn giáo làm mục đích cho tinh thần" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Đặc trưng cơ bản của một cộng đồng quốc gia dân tộc là:", "options": [ "Được thiết lập trên một lãnh thổ chung", "Được xác định chung huyết thống", "Dựa trên nguồn gốc sinh ra từ lâu đời", "Dựa trên các sắc tộc cùng màu da" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những đặc điểm của các dân tộc ở Việt Nam là :", "options": [ "Có truyền thống yêu nước, thương nòi kế tiếp đời này qua đời khác", "Có truyền thống đoàn kết gắn bó xây dựng quốc gia dân tộc thống nhất", "Có tinh thần chịu đựng gian khổ, khó khăn, không sợ hy sinh, vất vả", "Có tinh thần độc lập tự chủ, chịu thương, chịu khó làm ăn sinh sống" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tôn giáo là một cộng đồng xã hội với các yếu tố:", "options": [ "Hệ thống giáo lý tôn giáo, nghi thức tôn giáo, tổ chức tôn giáo với các thành viên và cơ sở vật chất phục vụ cho hoạt động tôn giáo", "Hệ thống giáo khoa tôn giáo, nghi thức tôn giáo, tổ chức tôn giáo với đội ngũ giáo sỹ, tín đồ, cơ sở vật chất phục vụ cho hoạt động tôn giáo", "Hệ thống giáo khoa tôn giáo, nghi thức tôn giáo, đội ngũ giáo sỹ, tín đồ đông đảo và cơ sở vật chất phục vụ cho hoạt động tôn giáo", "Hệ thống giáo lý tôn giáo, nghi lễ tôn giáo, tổ chức tôn giáo với đội ngũ giáo sỹ, tín đồ, cơ sở vật chất phục vụ cho hoạt động tôn giáo" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Tôn giáo là một hình thái ý thức xã hội, phản ánh hiện thực khách quan theo:", "options": [ "Trào lưu của xã hội phù hợp với tư tưởng, tình cảm, niềm tin của con người", "Quy luật phát triển của đời sống xã hội, được mọi người tin tưởng tham gia", "Chuẩn mực đạo đức, truyền thống phù hợp với tâm lý, hành vi của mọi người", "Quan niệm hoang đường, ảo tưởng, phù hợp với tâm lý, hành vi của con người" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Ở Việt Nam vị vua được tôn vinh Phật hoàng là:", "options": [ "Trần Nhân Tông", "Trần Thánh Tông", "Lý Thái Tông", "Lý Nhân Tông" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tăng cường công tác đào tạo, bồi dưỡng cán bộ làm công tác tôn giáo, là một trong những nội dung:", "options": [ "Quan điểm tôn giáo của Đảng, Nhà nước ta", "Chính sách tôn giáo của Đảng, Nhà nước ta", "Chính sách tôn giáo của Chủ nghĩa Mác-Lê nin", "Quan điểm tôn giáo của chủ nghĩa Mác-Lê nin" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Vấn đề dân tộc, sắc tộc đã gây nên những hậu quả nặng nề về", "options": [ "Chính trị tinh thần, văn hóa, xã hội và có thể gây ra chiến tranh", "Đời sống vật chất, tinh thần của nhân dân trên mọi quốc gia", "Kinh tế, chính trị, văn hóa, xã hội, môi trường cho các quốc gia", "Mọi hoạt động của đời sống xã hội của các quốc gia trên thế giới" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 }
+      ];
+	  
+	  const bt5a_moi_questions = [
+        { "question": "Phạm tội mua bán người trong các trường hợp nào sau đây thì bị phạt từ từ 08 năm đến 15 năm", "options": [ "Có tính chất chuyên nghiệp", "Làm nạn nhân chết hoặc tự sát", "Đã lấy bộ phận cơ thể của nạn nhân", "Vì động cơ đê hèn" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Bộ Luật Hình sự quy định về:", "options": [ "Tội phạm và hình phạt", "Cơ quan chức năng và tội phạm", "Nhà nước và tội phạm", "Pháp luật hình sự và tội phạm" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Bộ Luật hình sự hiện hành của nước Cộng hòa XHCN Việt Nam là:", "options": [ "Bộ Luật hình sự năm 2015, sửa đổi, bổ sung năm 2017", "Bộ Luật hình sự năm 2015, sửa đổi, bổ sung năm 2018", "Bộ Luật hình sự năm 2015, sửa đổi, bổ sung năm 2019", "Bộ Luật hình sự năm 2015, sửa đổi, bổ sung năm 2016" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Bộ Luật hình sự quy định về tội hiếp dâm với mức án cao nhất là:", "options": [ "15 năm", "20 năm", "Chung thân", "Tử hình" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Phạm tội mua bán người trong các trường hợp nào sau đây, thì bị phạt tù từ 05 năm đến 10 năm:", "options": [ "Gây thương tích, gây tổn hại cho sức khỏe cơ thể dưới 31%", "Chuyển giao hoặc tiếp nhận người để giao, nhần tiền, tài sản hoặc lợi ích vật chất khác", "Gây thương tích, gây tổn hại cho sức khỏe cơ thể 61% trở lên.", "Gây thương tích, gây tổn hại cho sức khỏe cơ thể từ 31% đến 60%" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Biện pháp văn hóa-giáo dục được xác định là biện pháp:", "options": [ "Quan trọng, hàng đầu", "Bao trùm, cấp thiết", "Cơ bản, lâu dài", "Thường xuyên, liên tục" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tội xâm phạm tình dục là:", "options": [ "Hành động dùng vũ lực để ép buộc người khác quan hệ tình dục", "Hành động xâm phạm thể xác của người khác để thỏa mãn nhu cầu sinh lý", "Do người có năng lực trách nhiệm hình sự thực hiện một cách cố ý hoặc vô ý", "Hành vi nguy hiểm cho xã hội được quy định trong Bộ Luật hình sự" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Phạm tội mua bán người trong các trường hợp nào sau đây thì bị phạt từ từ 12năm đến 20 năm", "options": [ "Có tính chất chuyên nghiệp", "Vì động cơ đê hèn", "Phạm tội 02 lần trở lên", "Có tổ chức" ], "correctOption": "1", "difficulty": "hard", "explanation": "", "optionCount": 4 },
+        { "question": "“Bộ Luật hình sự là công cụ sắc bén, hữu hiệu để đấu tranh phòng, chống tội phạm” là:", "options": [ "Đặc điểm của BLHS", "Đặc trưng của BLHS", "Nhiệm vụ của BLHS", "Vai trò của BLHS" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Nội dung nào thể hiện nhiệm vụ của Bộ Luật hình sự:", "options": [ "Giáo dục mọi người ý thức tuân theo pháp luật và phòng, chống tội phạm", "Bảo vệ các quan hệ xã hội được các luật khác thiết lập", "Do cơ quan nhà nước có thẩm quyền ban hành quy định tội phạm và hình phạt", "Công cụ sắc bén, để đấu tranh phòng, chống tội phạm." ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Nội dung nào thể hiện vai trò của Bộ Luật hình sự", "options": [ "Bảo vệ lợi ích của Nhà nước, tổ chức, bảo vệ trật tự pháp luật.", "Bảo vệ các quan hệ xã hội được các luật khác thiết lập", "Bảo vệ các quan hệ xã hội liên quan đến Nhà nước và người phạm tội", "Bảo vệ quyền con người, quyền công dân" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Bộ Luật hình sự bao gồm hệ thống quy phạm pháp luật điều chỉnh các quan hệ xã hội liên quan đến:", "options": [ "Nhà nước và người phạm tội", "Nhà nước, Viện kiểm sát và người phạm tội", "Nhà nước, Tòa án và người phạm tội", "Nhà nước, Công an và người phạm tội" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Nhân phẩm, danh dự của con người là những yêu tố về tinh thần, bao gồm:", "options": [ "Tổng hợp những phẩm chất mang tính đặc trưng của mỗi cá nhân", "Phẩm giá, giá trị, sự tôn trọng, tình cảm của người xung quanh đối với người đó", "Những yếu tố gắn liền với quyền nhân thân được pháp luật bảo vệ", "Dư luận xã hội, giá trị tinh thần, đạo đức tốt đẹp của xã hội giành cho người đó" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Bộ Luật hình sự hiện hành quy định về tội hiếp dâm là:", "options": [ "Ép buộc nạn nhân quan hệ tình dục ngoài ý muốn", "Dụ giỗ, lường gạt người khác thực hiện hành vi quan hệ tình dục.", "Dùng vũ lực, đe dọa dùng vũ lực để thực hiện hành vi quan hệ tình dục.", "Thực hiện hành vi giao cấu nhưng không được nạn nhân cho phép" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Phạm tội mua bán người có thể bị phạt tiền:", "options": [ "Từ 20.000.000 đồng đến 100.000.000 đồng", "Từ 20.000.000 đồng đến 80.000.000 đồng", "Từ 20.000.000 đồng đến 40.000.000 đồng", "Từ 20.000.000 đồng đến 60.000.000 đồng" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Các tội xâm phạm nhân phẩm, danh dự của con người được quy định trong:", "options": [ "Bộ Luật tố tụng dân sự", "Bộ Luật hình sự", "Bộ Luật dân sự", "Bộ Luật tố tụng hình sự" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Phạm tội hiếp dâm trong các trường hợp nào sau đây, thì bị phạt tù từ 12 năm đến 20 năm hoặc từ chung thân:", "options": [ "Biết mình bị nhiễm HIV mà vẫn phạm tội", "Nhiều người hiếp một người", "Có tính chất loạn luân", "Làm nạn nhân có thai" ], "correctOption": "1", "difficulty": "hard", "explanation": "", "optionCount": 4 },
+        { "question": "Các tội xâm phạm nhân phẩm, danh dự con người được quy định trong:", "options": [ "Chương XVII - Bộ Luật hình sự hiện hành", "Chương XIV - Bộ Luật hình sự hiện hành", "Chương XVI - Bộ Luật hình sự hiện hành", "Chương XV - Bộ Luật hình sự hiện hành" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Phạm tội làm nhục người khác, có thể bị phạt tiền:", "options": [ "Từ 10.000.000 đồng đến 60.000.000 đồng", "Từ 10.000.000 đồng đến 50.000.000 đồng", "Từ 10.000.000 đồng đến 40.000.000 đồng", "Từ 10.000.000 đồng đến 30.000.000 đồng" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Khách quan của tội phạm xâm phạm nhân phẩm, danh dự của con người là:", "options": [ "Hậu quả của hành vi nguy hiểm", "Lỗi của hành vi nguy hiểm", "Cách xử sự nguy hiểm của chủ thể", "Tác hại của hành vi nguy hiểm" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Phạm tội làm nhục người khác trong các trường hợp nào sau đây thì bị phạt từ từ 02 năm đến 05 năm", "options": [ "Gây rối loạn tâm thần, tỷ lệ tổn thương cơ thể từ 31% đến 60%", "Sử dụng mạng máy tính hoặc mạng viễn thông, phương tiện điện tử để phạm tội", "Gây rối loạn tâm thần, tỷ lệ tổn thương cơ thể 61% trở lên", "Đối với người dạy dỗ, nuôi dưỡng, chăm sóc, chữa bệnh cho mình" ], "correctOption": "3", "difficulty": "hard", "explanation": "", "optionCount": 4 },
+        { "question": "Các tội xâm phạm nhân phẩm, danh dự của con người do người có năng lực trách nhiệm hình sự và đủ tuổi chịu trách nhiệm hình sự thực hiện là:", "options": [ "Nhiệm vụ", "Tính chất", "Đặc điểm", "Đặc trưng" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "“Gắn giáo dục kiến thức văn hoá với giáo dục kỹ năng sống” để phụ nữ và trẻ em:", "options": [ "Nâng cao nhận thức về thái độ và trách nhiệm", "Tránh xa những đối tượng có tiền án, tiền sự", "Tự bảo vệ mình trước các nguy cơ bị xâm hại", "Tham gia công tác phòng, chống tội phạm" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Nội dung nào thể hiện biện pháp kinh tế-xã hội phòng, chống các tội xâm phạm nhân phẩm, danh dự của con người", "options": [ "Quan tâm và có chiến lược giáo dục con cháu hiệu quả", "Tăng cường các biện pháp liên quan đến phát hiện và xử lý", "Huy động các nguồn lực xã hội để đẩy mạnh đầu tư", "Đổi mới nội dung, hình thức, biện pháp tuyên truyền" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Phạm tội hiếp dâm trong các trường hợp nào sau đây, thì bị phạt tù từ 07 năm đến 15 năm:", "options": [ "Phạm tội đối với người từ đủ 16 tuổi đến dưới 18 tuổi", "Gây thương tích, gây tổn hại cho sức khỏe cơ thể từ 31% đến 60%", "Gây thương tích, gây tổn hại cho sức khỏe 61% trở lên;", "Dùng vũ lực hoặc đe dọa dùng vũ lực để thực hiện hành vi quan hệ tình dục" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Người phạm tội có ý lây truyền HIV cho người khác có thể bị phạt tù:", "options": [ "Từ 01 năm đến 03 năm", "Từ 09 năm đến 12 năm", "Từ 05 năm đến 09 năm", "Từ 03 năm đến 05 năm" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "“Các tội xâm phạm nhân phẩm, danh dự của con người là những hành vi nguy hiểm cho xã hội” là:", "options": [ "Nội dung của tội xâm phạm nhân phẩm, danh dự", "Khái niệm của tội xâm phạm nhân phẩm, danh dự", "Tính chất của tội xâm phạm nhân phẩm, danh dự", "Đặc điểm của tội xâm phạm nhân phẩm, danh dự" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Hành vi xâm phạm nhân phẩm, danh dự của con người là:", "options": [ "Xâm phạm về nhân phẩm, danh dự được pháp luật bảo vệ", "Xâm phạm quyền được tôn trọng và bảo vệ về NP, DD người khác", "Làm cho người đó bị xúc phạm, tổn thương về tinh thần và xấu hổ", "Hành vi nguy hiểm cho xã hội được quy định trong BLHS năm 2017" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Chủ quan của tội phạm xâm phạm nhân phẩm, danh dự của con người là:", "options": [ "Lỗi", "Lỗi, động cơ, mục đích của người phạm tội", "Mục đích", "Động cơ" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "“Các tội xâm phạm nhân phẩm, danh dự của con người do người có năng lực trách nhiệm hình sự và đủ tuổi chịu trách nhiệm hình sự thực hiện” là.", "options": [ "Là người có năng lực trách nhiệm hình sự và từ đủ 20 tuổi trở lên", "Là người có năng lực trách nhiệm hình sự và từ đủ 16 tuổi trở lên", "Là người có năng lực trách nhiệm hình sự và từ đủ 14 tuổi trở lên", "Là người có năng lực trách nhiệm hình sự và từ đủ 18 tuổi trở lên" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tội lây truyền HIV cho người khác là:", "options": [ "Biết mình bị nhiễm HIV nhưng cố ý mang bầu và sinh con (đối với phụ nữ)", "Biết mình bị nhiễm HIV nhưng vô ý lây truyền HIV cho người khác", "Không biết mình bị nhiễm HIV mà vô ý lây truyền HIV cho người khác", "Biết mình bị nhiễm HIV mà cố ý lây truyền HIV cho người khác" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "“Tăng cường mở các lớp đào tạo nghề và giải quyết việc làm cho lao động ở các địa phương” là biện pháp:", "options": [ "Kinh tế - xã hội", "Văn hóa - giáo dục", "Quản lý nhà nước về ANTT xã hội ở các địa phương", "Giáo dục của gia đình, nhà nước và xã hội" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "“Tăng cường công tác tuyên truyền, phổ biến giáo dục pháp luật về tội xâm phạm nhân phẩm, danh dự trong cộng đồng dân cư” là nội dung của biện pháp:", "options": [ "Giáo dục của gia đình", "Giáo dục của Nhà nước và xã hội", "Kinh tế-xã hội", "Văn hóa-giáo dục" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Người nào xâm phạm nhân phẩm, danh dự của người khác phải chịu:", "options": [ "Trách nhiệm dân sự", "Trách nhiệm hình sự", "Trách nhiệm tố tụng dân sự", "Trách nhiệm tố tụng hình sự" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tội làm nhục người khác là:", "options": [ "Lăng mạ, sỉ nhục, chửi bới… làm họ bị xúc phạm về nhân phẩm, danh dự", "Hành vi xâm phạm đến quyền được bảo hộ về NP, DD của người khác", "Hành vi xúc phạm về thể xác ảnh hưởng đến uy tín, danh dự của họ trước tập thể", "Có hành vi làm cho người khác bị mất nhân phẩm, danh dự trước tập thể" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 }
+      ];
+	  
+	  const bt5b_questions = [
+        { "question": "Trong phòng chống tội phạm xâm hại danh dự, nhân phẩm cơ quan nào giữ vai trò ban hành, điều chỉnh các luật, văn bản pháp lý có liên quan:", "options": [ "Quốc hội, Hội đồng nhân các cấp", "Bộ Công an", "Chính phủ, Ủy ban nhân dân các cấp", "Toà án nhân dân" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nguyên nhân, điều kiện của tình trạng phạm tội xúc phạm danh dự, nhân phẩm là:", "options": [ "Sự bất đồng quan điểm cá nhân", "Sự tác động bởi những mặt trái của nền kinh tế thị trường", "Làm mất cơ hội thăng tiến của người khác", "Sự tác động của chênh lệch giàu nghèo" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Khắc phục nguyên nhân, điều kiện của tình trạng phạm tội là:", "options": [ "Hướng mang tính cơ bản, chiến lược và lâu dài", "Mang tính cơ bản, trước mắt", "Mang tính vĩ mô", "Mang tính chiến lược" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Đâu là hướng quan trọng trong phòng chống tội phạm xâm hại danh dự, nhân phẩm:", "options": [ "Khắc phục nguyên nhân điều kiện của tình trạng phạm tội", "Hạn chế đến mức thấp nhất hậu quả, tác hại khi tội phạm gây ra", "Tăng khung hình phạt dành cho đối tượng phạm tội", "Đẩy mạnh công tác giáo dục tuyên truyền" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Mặt khách quan của các tội xâm phạm danh dự, nhân phẩm của con người thể hiện ở:", "options": [ "Những hành vi nguy hiểm cho xã hội xâm phạm trực tiếp tới danh dự, nhân phẩm của con người", "Những hành vi đi ngược lại chuẩn mực đạo đức xâm phạm trực tiếp tới danh dự, nhân phẩm của con người", "Những hành vi gây tổn hại vật chất xâm phạm trực tiếp tới danh dự, nhân phẩm của con người", "Những hành vi gây ảnh hưởng tới tinh thần xâm phạm trực tiếp tới danh dự, nhân phẩm của con người" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Trong phòng chống tội phạm xâm hại danh dự, nhân phẩm cơ quan nào giữ vai trò quản lý, điều hành, bảo đảm điều kiện cần thiết:", "options": [ "Bộ Tài chính", "Quốc hội, Hội đồng nhân các cấp", "Bộ Công an", "Chính phủ, Ủy ban nhân dân các cấp" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những tàn dư chế độ cũ để lại làm nảy sinh các hiện tượng tiêu cực trong đó có tội phạm là:", "options": [ "Tệ nạn mê tín dị đoan", "Tệ nạn ma túy", "Tư tưởng trọng nam, khinh nữ", "Tệ nạn cờ bạc" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Trong nguyên tắc pháp chế phòng chống tội phạm xâm hại danh dự, nhân phẩm nhấn mạnh: Mọi hoạt động phòng ngừa tội phạm của các cơ quan Nhà nước, tổ chức, các công dân phải:", "options": [ "Phù hợp văn hóa địa phương", "Phù hợp với trình độ dân trí", "Phù hợp luật pháp quốc tế", "Hợp hiến, hợp pháp" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "“Chú trọng giáo dục đạo đức lẫn kiến thức; lồng ghép nội dung giáo dục giới tính, sức khỏe sinh sản cho học sinh” là trách nhiệm chính của:", "options": [ "Gia đình", "Xã hội", "Nhà trường", "Đoàn thể" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Danh dự của con người được xác nhận dựa trên:", "options": [ "Giá trị vật chất và uy tín xã hội", "Giá trị tinh thần, đạo đức tốt đẹp", "Giá trị tinh thần và giá trị vật chất", "Sự sùng bái của đám đông" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "“Nâng cao hiệu quả phối hợp giữa các chủ thể lực phòng, chống các tội xâm phạm nhân phẩm, danh dự của con người ở các địa phương” là một trong những nội dung của:", "options": [ "Nhiệm vụ phòng, chống", "Quan điểm phòng, chống", "Phương hướng phòng, chống", "Biện pháp phòng, chống" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nguyên tắc tổ chức, hoạt động phòng chống tội phạm xâm hại danh dự, nhân phẩm:", "options": [ "Nguyên tắc khoa học và sự tiến bộ", "Nguyên tắc pháp lý", "Nguyên tắc dân chủ", "Nguyên tắc khoa học và tiến bộ trong phòng ngừa" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "“Tập trung giải quyết những vấn đề bức xúc về tội phạm và tệ nạn xã hội, không để hình thành địa bàn phức tạp” là nghĩa vụ và trách nhiệm của các cơ quan chức năng:", "options": [ "Viện Kiểm sát - Tòa án - Đoàn thể", "Công an - Tòa án - Gia đình", "Công an - Viện Kiểm sát - Tòa án", "Công an - Viện Kiểm sát - Nhà trường" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tự giác chấp hành các quy định về phòng, chống các tội xâm phạm nhân phẩm, danh dự của con ngườiở nhà trư­­ờng và địa phư­­ơng nơi cư­ trú” là:", "options": [ "Thái độ, nghĩa vụ của sinh viên", "Phương hướng, nhiệm vụ của sinh viên", "Vai trò, trách nhiệm của sinh viên", "Mục đích, yêu cầu của sinh viên" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Trong phòng chống tội phạm xâm hại danh dự, nhân phẩm các cơ quan nào giữ vai trò nghiên cứu, phân tích tình trạng phạm tội, xác định nguyên nhân, điều kiện của tội phạm", "options": [ "Công an, Quân đội, Mặt trận Tổ quốc", "Công an, Bộ Tài chính, Bộ Tư pháp", "Công an, Viện kiểm sát, Tòa án", "Bộ Tư pháp, Viện Kiểm sát nhân dân, Quân đội" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Hành vi xâm phạm danh dự, nhân phẩm của con người là làm cho người đó bị:", "options": [ "Xúc phạm, tổn thương về tinh thần và xấu hổ với người xung quanh", "Mất cơ hội thăng tiến trong xã hội", "Tổn thương về vật chất và tinh thần", "Xúc phạm, tổn thương về vật chất" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nguyên nhân, điều kiện của tình trạng phạm tội xúc phạm danh dự, nhân phẩm là:", "options": [ "Tàn dư của những hiện tượng tiêu cực do chế độ cũ để lại", "Hủ tục lạc hậu", "Dân trí thấp", "Kinh tế chậm phát triển" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nguyên tắc tổ chức, hoạt động phòng chống tội phạm xâm hại danh dự, nhân phẩm:", "options": [ "Nguyên tắc cộng sinh", "Nguyên tắc khoa học", "Nguyên tắc dân chủ XHCN", "Nguyên tắc dân chủ" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Mục đích của phòng, ngừa tội phạm là:", "options": [ "Nâng cao chất lượng đời sống cho người dân", "Khắc phục những hạn chế do chế độ cũ để lại", "Thực hiện mục tiêu phát triển kinh tế - xã hội", "Khắc phục những nguyên nhân, điều kiện của tình trạng phạm tội" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Nhân phẩm là phẩm chất, giá trị của một con người được:", "options": [ "Pháp luật bảo vệ", "Tôn giáo bảo vệ", "Quần chúng nhân dân bảo vệ", "Cộng đồng bảo vệ" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những yếu tố hình thành nguyên nhân, điều kiện của tình trạng phạm tội xúc phạm danh dự, nhân phẩm là:", "options": [ "Giá trị vật chất lên ngôi", "Phân hóa giàu nghèo", "Bất bình đẳng giới", "Tệ nạn xã hội phát triển" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Công dân với tư cách:", "options": [ "Xét xử trong phòng chống tội phạm", "Khách thể trong phòng chống tội phạm", "Điều tra trong phòng chống tội phạm", "Chủ thể trong phòng chống tội phạm" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Danh dự, nhân phẩm của con người bao gồm:", "options": [ "Phẩm giá, sùng bái, tín nhiệm của những người xung quanh, của xã hội đối với người đó", "Sự tôn trọng, sùng bái, tín nhiệm của những người xung quanh, của xã hội đối với người đó", "Phẩm giá, giá trị, sự tôn trong, sự ngưỡng mộ của những người xung quanh, của xã hội đối với người đó", "Phẩm giá, giá trị, sự tôn trọng, tình cảm yêu mến của những người xung quanh, của xã hội đối với người đó" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "“Thường xuyên tuyên truyền, vận động quần chúng nhân dân trong đấu tranh, phòng, chống tội xâm phạm nhân phẩm, danh dự của con người” là trách nhiệm của:", "options": [ "Quần chúng nhân nhân", "Cấp ủy Đảng và chính quyền", "Cơ quan chức năng", "Đoàn thể ở địa phương" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Phòng ngừa tội phạm là thể hiện:", "options": [ "Nguyên tắc hoạt động trong công tác đấu tranh, phòng chống tội phạm", "Tinh thần chỉ đạo trong công tác đấu tranh, phòng chống tội phạm", "Biện pháp chính trong công tác đấu tranh, phòng chống tội phạm", "Tư tưởng chỉ đạo trong công tác đấu tranh, phòng chống tội phạm" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Làm tốt công tác phòng ngừa tội phạm mang ý nghĩa:", "options": [ "Nâng cao chất lượng đời sống một bộ phận người dân", "Xóa bỏ hủ tục lạc hậu", "Giữ vững an ninh quốc gia, trật tự an toàn xã hội", "Góp phần phát triển kinh tế- xã hội ở một số khu vực" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nguyên tắc tổ chức, hoạt động phòng chống tội phạm xâm hại danh dự, nhân phẩm:", "options": [ "Nguyên tắc cụ thể hóa trong phòng ngừa tội phạm", "Nguyên tắc nhân đạo", "Nguyên tắc khoa học", "Nguyên tắc dân chủ" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nguyên tắc tổ chức, hoạt động phòng chống tội phạm xâm hại danh dự, nhân phẩm:", "options": [ "Nguyên tắc pháp chế", "Nguyên tắc dân chủ", "Nguyên tắc khoa học", "Nguyên tắc cộng sinh" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những nguyên tắc tổ chức, hoạt động phòng chống tội phạm xâm hại danh dự, nhân phẩm:", "options": [ "Nguyên tắc nhân đạo trong phòng ngừa", "Nguyên tắc dân chủ", "Nguyên tắc khoa học", "Nguyên tắc cộng sinh" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Mục đích của phòng, ngừa tội phạm là:", "options": [ "Nâng cao chất lượng đời sống cho người dân", "Khắc phục những hạn chế do chế độ cũ để lại", "Ngăn chặn, hạn chế và làm giảm từng bước, tiến tới loại trừ tội phạm ra khỏi đời sống cộng đồng", "Thực hiện mục tiêu phát triển kinh tế - xã hội" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Chủ thể của tội xâm hại danh dự, nhân phẩm là:", "options": [ "Những người có năng lực trách nhiệm hình sự và đạt độ tuổi nhất định", "Những người nằm trong khung độ tuổi quy định", "Những thành phần vô gia cư", "Những người có tiến án, tiền sự" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Đối tượng xâm hại danh dự, nhân phẩm sử dụng những công cụ, phương tiện khác nhau để gây ra:", "options": [ "Thiệt hại về tinh thần cho người khác", "Thiệt hại hoặc đe dọa gây ra thiệt hại cho người khác", "Thiệt hại về tính mạng và tài sản cho người khác.", "Thiệt hại về vật chất cho người khác" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Đối tượng tác động của các tội xâm phạm danh dự, nhân phẩm là:", "options": [ "Cơ hội thăng tiến", "Con người cụ thể", "Uy tín trong xã hội", "Địa vị trong xã hội" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Đâu là hướng ưu tiên hàng đầu trong phòng chống tội phạm:", "options": [ "Khắc phục nguyên nhân, điều kiện của tình trang phạm tội", "Đẩy mạnh công tác giáo dục tuyên truyền", "Tăng khung hình phạt dành cho đối tượng phạm tội", "Hạn chế mức thấp nhất hậu quả xảy ra" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 }
+      ];
+	  
+	  const bt6_questions = [
+        { "question": "Luật An toàn thông tin mạng gồm bao nhiêu chương, điều?", "options": [ "08 chương, 45 điều", "08 chương, 54 điều", "07 chương, 45 điều", "07 chương, 54 điều" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Theo số liệu thống kê từ năm 2012 -2013, số lần tin tặc tấn công vào cổng thông tin, trang điện tử của Việt Nam là:", "options": [ "5000 lượt", "8000 lượt", "6000 lượt", "7000 lượt" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Câu 53: Các đối tượng sử dụng không gian mạng để đăng thông tin độc hại nhằm mục đích:", "options": [ "Gây ảnh hưởng đến an ninh quốc gia, trật tự,an toàn xã hội", "Phát triển kinh tế - xã hội", "Tăng thêm tính đoàn kết cộng đồng", "Bảo tồn lưu giữ giá trị văn hóa" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Các đối tượng sử dụng không gian mạng để đăng thông tin độc hại nhằm mục đích:", "options": [ "Ngăn chặn, làm giảm tội phạm", "Bảo tồn lưu giữ giá trị văn hóa", "Tăng thêm tính đoàn kết cộng đồng", "Tuyên truyền tệ nạn xã hội" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Nghị định nào hiện nay quy định về xử phạt hành chính trong lĩnh vực bưu chính viễn thông, công nghệ thông tin và tần số vô tuyến?", "options": [ "Nghị định 184", "Nghị định 15", "Nghị định 100", "Nghị định 174" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Các đối tượng sử dụng không gian mạng để đăng thông tin độc hại nhằm mục đích:", "options": [ "Ngăn chặn, làm giảm tội phạm", "Tạo uy tín cho một vài cá nhân", "Kích thích kinh tế phát triển.", "Xúi giục, lôi kéo, kích động người khác phạm tội" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Khủng bố mạng là:", "options": [ "Việc sử dụng tài khoản cá nhân để thực hiện hành vi khủng bố, tài trợ khủng bố", "Việc sử dụng tài liệu liên quan đến không gian mạng để thực hiện hành vi khủng bố, tài trợ khủng bố", "Việc sử dụng không gian mạng, công nghệ thông tin hoặc phương tiện điện tử để thực hiện hành vi khủng bố, tài trợ khủng bố", "Việc sử dụng tài khoản tổ chức để thực hiện hành vi khủng bố, tài trợ khủng bố" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Tin giả có thể gây ra tình trạng:", "options": [ "Xóa đói giảm nghèo", "Tăng trưởng kinh tế", "Rối loạn xã hội", "Phòng chống dịch bệnh" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Bảo đảm an ninh, an toàn thông tin là nhiệm vụ mang tính:", "options": [ "Quan trọng và cấp thiết trong tình hình hiện nay", "Có tính chất sống còn với đất nước ta", "Quan trọng hàng đầu trong tình hình hiện nay", "Quan trọng và cấp bách trong tình hình hiện nay" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Mục đích của an toàn thông tin mạng nhằm:", "options": [ "Đảm bảo tính nguyên vẹn của thông tin", "Đảm bảo tính nguyên vẹn, tính bảo mật và tính khả dụng của thông tin", "Đảm bảo tính bí mật của thông tin", "Đảm bảo tính thông suốt của thông tin" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Các hành vi bị nghiêm cấm của luật an toàn thông tin mạng.", "options": [ "Phát tán thư rác, phần mềm độc hại, đưa thông tin giả mạo, lừa đảo, xuyên tạc, tấn công mạng", "Phát tán thư rác, phần mềm độc hại, tuyên truyền các thông tin giả mạo, lừa đảo", "Phát tán thư rác, phần mềm độc hại, thiết lập hệ thống thông tin giả mạo, lừa đảo", "Phát tán thư rác, vi rút độc hại, thiết lập hệ thống thông tin giả mạo, lừa đảo" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Phạt tiền đối với hành vi xâm phạm đến quyền, lợi ích hợp pháp của chủ sở hữu cơ sở dữ liệu hoặc cản trở việc sử dụng cơ sở dữ liệu của chủ sở hữu khi thực hiện tái sản xuất, phân phối, quảng bá, truyền đưa, cung cấp nội dung hợp thành cơ sở dữ liệu:", "options": [ "100.000.000 đồng đến 200.000.000 đồng", "140.000.000 đồng đến 240.000.000 đồng", "140.000.000 đồng đến 200.000.000 đồng", "100.000.000 đồng đến 140.000.000 đồng" ], "correctOption": "4", "difficulty": "hard", "explanation": "", "optionCount": 4 },
+        { "question": "Số liệu thống kê cho thấy tin tặc tấn công vào lĩnh vực tài chính chiếm:", "options": [ "73%", "21%", "37%", "12%" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Thông tin trên không gian mạng có nội dung làm nhục, vu khống:", "options": [ "Tuyên truyền xuyên tạc, phỉ báng chính quyền nhân dân", "Thông tin bịa đặt, sai sự thật về sản phẩm, hàng hóa, tiền, trái phiếu, tín phiếu, công trái, séc và các loại giấy tờ có giá trị khác", "Xúc phạm nghiêm trọng danh dự, uy tín, nhân phẩm của người khác", "Xúc phạm dân tộc, quốc kỳ, quốc huy, quốc ca, vĩ nhân, lãnh tụ, danh nhân, anh hùng dân tộc" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Thông tin trên không gian mạng có nội dung:” Chiến tranh tâm lý, kích động chiến tranh xâm lược, chia rẽ, gây thù hận giữa các dân tộc, tôn giáo và nhân dân các nước”. Là nội dung vi phạm:", "options": [ "Thông tin trên không gian mạng có nội dung tuyên truyền chống Nhà nước Cộng hòa XHCN Việt Nam", "Thông tin trên không gian mạng có nội dung xâm phạm trật tự quản lý kinh tế", "Thông tin trên không gian mạng có nội dung làm nhục, vu khống", "Thông tin trên không gian mạng có nội dung kích động gây bạo loạn, phá rối an ninh, gây rối TTCC" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Hiện nay các đối tượng tạo tin giả bằng cách sử dụng công nghệ để:", "options": [ "Giả tiếng, giả hình, giả video", "Chiếm đoạt tài sản", "Giả lý lịch", "Tạo dựng uy tín" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "An toàn thông tin mạng nhằm:", "options": [ "Chống truy nhập, truyền đi nội dung thông tin giả", "Tránh bị truy nhập, sử dụng, tiết lộ, sửa đổi hoặc phá hoại trái phép thông tin", "Chống việc thông tin bị phá hoại, đánh cắp", "Đảm bảo thông tin thông suốt" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Chính phủ đã ban hành Nghị định số 15/2020/NĐ-CP quy định xử phạt vi phạm hành chính trong lĩnh vực bưu chính, viễn thông, tần số vô tuyến điện, công nghệ thông tin và giao dịch điện tử khi nào?", "options": [ "Ngày 02 tháng 03 năm 2020", "Ngày 02 tháng 03 năm 2019", "Ngày 03 tháng 02 năm 2020", "Ngày 03 tháng 02 năm 2019" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Luật An ninh mạng của nước ta có hiệu lực từ khi nào:", "options": [ "01/01/2020", "01/01/2018", "01/01/2021", "01/01/2019" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Chủ động phòng ngừa, phát hiện, ngăn chặn, đấu tranh, làm thất bại mọi hoạt động sử dụng không gian mạng xâm phạm an ninh quốc gia, trật tự, an toàn xã hội, quyền và lợi ích hợp pháp của cơ quan, tổ chức, cá nhân; sẵn sàng ngăn chặn các nguy cơ đe dọa an ninh mạng là nội dung:", "options": [ "Biện pháp bảo vệ an ninh mạng", "Nguyên tắc bảo vệ an ninh mạng", "Yêu cầu bảo vệ an ninh mạng", "Đặc điểm bảo vệ an ninh mạng" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Mục tiêu chủ yêu tin tặc tấn công liên quan tới lĩnh vực:", "options": [ "An ninh", "Tài chính", "Văn hóa", "Quốc phòng" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Các đối tượng sử dụng không gian mạng để đăng thông tin độc hại nhằm mục đích:", "options": [ "Tạo uy tín cho một vài cá nhân", "Gây hoang mang trong nhân dân", "Ghi nhận lịch sử, truyền bá tư tưởng", "Tăng thêm tính đoàn kết cộng đồng." ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Bảo vệ an ninh mạng là:", "options": [ "Phòng ngừa, phát hiện, ngăn chặn, xử lý hành vi xâm phạm an ninh mạng", "Điều tra, phát hiện, ngăn chặn, xử lý hành vi xâm phạm an ninh mạng", "Phòng ngừa, phát hiện, điều tra, xử lý hành vi xâm phạm an ninh mạng", "Phòng ngừa, điều tra, ngăn chặn, xử lý hành vi xâm phạm an ninh mạng" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tin giả có thể được tạo ra và lan truyền nhằm mục đích:", "options": [ "Chính trị", "Văn hóa", "Thể thao", "Tôn giáo" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tin giả có thể được tạo ra và lan truyền nhằm mục đích:", "options": [ "Văn hóa", "Thể thao", "Thương mại", "Tôn giáo" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Phạt tiền đối hành vi Thu thập thông tin cá nhân khi chưa có sự đồng ý của chủ thể thông tin cá nhân về phạm vi, mục đích của việc thu thập và sử dụng thông tin đó; Cung cấp thông tin cá nhân cho bên thứ ba khi chủ thể thông tin cá nhân đã yêu cầu ngừng cung cấp:", "options": [ "20.000.000 đồng đến 30.000.000 đồng", "10.000.000 đồng đến 20.000.000 đồng", "10.000.000 đồng đến 40.000.000 đồng", "20.000.000 đồng đến 40.000.000 đồng" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "An toàn thông tin nhằm duy trì các tính chất (…) của thông tin trong lưu trữ, xử lý và truyền dẫn trên mạng.", "options": [ "Thông suốt, có khả năng chuyển đổi", "Thông suốt, bí mật", "Bí mật, toàn vẹn, sẵn sàng", "Bí mật, ổn định" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "An toàn thông tin là:", "options": [ "An toàn thông tin cho phần cứng theo tiêu chuẩn kỹ thuật", "An toàn kỹ thuật cho phần mềm thông tin theo tiêu chuẩn kỹ thuật", "An toàn cho hệ thống máy móc, trang thiết bị", "An toàn kỹ thuật cho các hoạt động của các cơ sở hạ tầng thông tin" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Ngăn chặn, yêu cầu tạm ngừng, ngừng cung cấp thông tin mạng; đình chỉ, tạm đình chỉ các hoạt động thiết lập, cung cấp và sử dụng mạng viễn thông, mạng Internet, sản xuất và sử dụng thiết bị phát, thu phát sóng vô tuyến theo quy định của pháp luật là nội dung:", "options": [ "Hình thức bảo vệ an ninh mạng", "Nguyên tắc bảo vệ an ninh mạng", "Biện pháp bảo vệ an ninh mạng", "Yêu cầu bảo vệ an ninh mạng" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Luật An ninh mạng gồm bao nhiêu chương, điều?", "options": [ "07 chương, 43 điều", "08 chương, 34 điều", "07 chương, 34 điều", "08 chương, 43 điều" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tiền đối hành vi bẻ khóa, trộm cắp, sử dụng mật khẩu, khóa mật mã và thông tin của tổ chức, cá nhân khác trên môi trường mạng.", "options": [ "15.000.000 đồng đến 20.000.000 đồng", "15.000.000 đồng đến 25.000.000 đồng", "10.000.000 đồng đến 25.000.000 đồng", "10.000.000 đồng đến 20.000.000 đồng" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Kịp thời cung cấp thông tin liên quan đến bảo vệ an ninh mạng, nguy cơ đe dọa an ninh mạng, hành vi xâm phạm an ninh mạng cho cơ quan có thẩm quyền, lực lượng bảo vệ an ninh mạng là nội dung:", "options": [ "Yêu cầu của cơ quan, tổ chức, cá nhân sử dụng không gian mạng", "Trách nhiệm của cơ quan, tổ chức, cá nhân sử dụng không gian mạng", "Nguyên tắc của cơ quan, tổ chức, cá nhân sử dụng không gian mạng", "Biện pháp của cơ quan, tổ chức, cá nhân sử dụng không gian mạng" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Theo Điều 101 của Nghị định này, hành vi cung cấp, chia sẻ thông tin giả mạo, thông tin sai sự thật, xuyên tạc, vu khống, xúc phạm uy tín của cơ quan, tổ chức, danh dự, nhân phẩm của cá nhân sẽ bị phạt từ.", "options": [ "15.000.000 đồng đến 25.000.000 đồng", "10.000.000 đồng đến 20.000.000 đồng", "25.000.000 đồng đến 35.000.000 đồng", "20.000.000 đồng đến 30.000.000 đồng" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Thông tin trên không gian mạng có nội dung:” Xúc phạm dân tộc, quốc kỳ, quốc huy, quốc ca, vĩ nhân, lãnh tụ, danh nhân, anh hùng dân tộc”. Là nội dung vi phạm:", "options": [ "Thông tin trên không gian mạng có nội dung tuyên truyền chống Nhà nước Cộng hòa XHCN Việt Nam", "Thông tin trên không gian mạng có nội dung xâm phạm trật tự quản lý kinh tế", "Thông tin trên không gian mạng có nội dung làm nhục, vu khống", "Thông tin trên không gian mạng có nội dung kích động gây bạo loạn, phá rối an ninh, gây rối TTCC" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Tội phạm công nghệ cao gây tổn hại đến:", "options": [ "An ninh quốc gia", "Lợi ích của nhà nước, quyền và lợi ích hợp pháp của tổ chức, cá nhân", "Tính mạng và tài sản của tổ chức, cá nhân", "Lợi ích của các tố chức chính trị, xã hội" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Thông tin trên không gian mạng có nội dung xâm phạm trật tự quản lý kinh tế:", "options": [ "Thông tin có nội dung vu khống về sản phẩm, hàng hóa, tiền, trái phiếu, tín phiếu, công trái, séc và các loại giấy tờ có giá trị khác", "Kêu gọi, vận động, xúi giục, đe dọa, lôi kéo tụ tập đông người gây rối, chống người thi hành công vụ, cản trở hoạt động của cơ quan, tổ chức gây mất ổn định về ANTT", "Thông tin bịa đặt, sai sự thật về sản phẩm, hàng hóa, tiền, trái phiếu, tín phiếu, công trái, séc và các loại giấy tờ có giá trị khác", "Thông tin bịa đặt, sai sự thật xâm phạm danh dự, uy tín, nhân phẩm hoặc gây thiệt hại đến quyền và lợi ích hợp pháp của cơ quan, tổ chức, cá nhân khác" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Số liệu thống kê cho thấy tin tặc tấn công vào lĩnh vực chính trị, tình báo chiếm:", "options": [ "73%", "31%", "37%", "21%" ], "correctOption": "4", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Câu 50: Mục đích sử dụng tin giả trong lĩnh vực thương mại nhằm:", "options": [ "Gây sự chú ý dư luận", "Gây tác động xấu đến đối thủ", "Chiếm lĩnh thị trường", "Tạo ra sự cạnh tranh lành mạnh giữa các bên" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Trong cuộc cách mạng công nghiệp 4.0 thì thông tin được xem là:", "options": [ "Không gian lưu trữ số liệu", "Một dạng tài sản của từng cá nhân", "Một dạng tài sản nhà nước quản lý", "Một dạng tài nguyên" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "An ninh mạng là sự đảm bảo hoạt động trên không gian mạng không gây phương hại đến:", "options": [ "Quyền tự do ngôn luận", "Quyền tự do tín ngưỡng, tôn giáo", "An ninh quốc gia, trật tự an toàn xã hội", "Sự phát triển kinh tế xã hội" ], "correctOption": "3", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Một trong những yếu tố góp phần làm giảm các vụ tin tặc tấn công mạng trong thời gian qua là do:", "options": [ "Các quy định, chế tài pháp luật đã đầy đủ và có tính răn đe cao", "Các quy định, chế tài pháp luật đã tương đối đầy đủ và có tính răn đe cao", "Chế tài pháp luật đã tương đối đầy đủ", "Chế tài pháp luật có tính răn đe cao" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Thông tin trên không gian mạng có nội dung tuyên truyền chống Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam:", "options": [ "Tuyên truyền xuyên tạc, phỉ báng chính quyền nhân dân; Chiến tranh tâm lý, kích động chiến tranh xâm lược, chia rẽ, gây thù hận giữa các dân tộc, tôn giáo và nhân dân các nước; Xúc phạm dân tộc, quốc kỳ, quốc huy, quốc ca, vĩ nhân, lãnh tụ, danh nhân, anh hùng dân tộc", "Tuyên truyền tư tưởng sống tự do, cực đoan; Đòi tự do, kích động chiến tranh xâm lược, chia rẽ, gây thù hận giữa các dân tộc, tôn giáo và nhân dân các nước; Xúc phạm dân tộc, quốc kỳ, quốc huy, quốc ca, vĩ nhân, lãnh tụ, danh nhân, anh hùng dân tộc", "Tuyên truyền xuyên tạc, phỉ báng chính quyền nhân dân; Đòi tự do, kích động chiến tranh xâm lược, chia rẽ, gây thù hận giữa các dân tộc, tôn giáo và nhân dân các nước; Xúc phạm dân tộc, quốc kỳ, quốc huy, quốc ca, vĩ nhân, lãnh tụ, danh nhân, anh hùng dân tộc", "Tuyên truyền tư tưởng sống tự do, cực đoan; Chiến tranh tâm lý, kích động chiến tranh xâm lược, chia rẽ, gây thù hận giữa các dân tộc, tôn giáo và nhân dân các nước; Xúc phạm dân tộc, quốc kỳ, quốc huy, quốc ca, vĩ nhân, lãnh tụ, danh nhân, anh hùng dân tộc" ], "correctOption": "1", "difficulty": "hard", "explanation": "", "optionCount": 4 },
+        { "question": "An ninh mạng là sự đảm bảo hoạt động trên không gian mạng không gây phương hại đến:", "options": [ "Quyền và lợi ích hợp pháp của các cơ quan, tổ chức và cá nhân", "Quyền tự do tín ngưỡng, tôn giáo", "Quyền tự do ngôn luận", "Sự phát triển kinh tế xã hội" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Phạt tiền đối với hành vi Sử dụng không đúng mục đích thông tin cá nhân đã thỏa thuận khi thu thập hoặc khi chưa có sự đồng ý của chủ thể thông tin cá nhân; Cung cấp hoặc chia sẻ hoặc phát tán thông tin cá nhân đã thu thập, tiếp cận, kiểm soát cho bên thứ ba khi chưa có sự đồng ý của chủ thông tin cá nhân; Thu thập, sử dụng, phát tán, kinh doanh trái pháp luật thông tin cá nhân của người khác:", "options": [ "10.000.000 đồng đến 40.000.000 đồng", "20.000.000 đồng đến 40.000.000 đồng", "20.000.000 đồng đến 30.000.000 đồng", "10.000.000 đồng đến 30.000.000 đồng" ], "correctOption": "3", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Phạt tiền đối với hành vi phá hoại cơ sở hạ tầng thông tin hoặc phá hoại thông tin trên môi trường mạng:", "options": [ "100.000.000 đồng đến 170.000.000 đồng", "140.000.000 đồng đến 170.000.000 đồng", "140.000.000 đồng đến 200.000.000 đồng", "100.000.000 đồng đến 200.000.000 đồng" ], "correctOption": "2", "difficulty": "hard", "explanation": "", "optionCount": 4 },
+        { "question": "Luật An toàn thông tin mạng Có hiệu lực thi hành từ:", "options": [ "Ngày 01 tháng 07 năm 2016", "Ngày 01 tháng 07 năm 2015", "Ngày 07 tháng 01 năm 2016.", "Ngày 07 tháng 01 năm 2015" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Các đối tượng sử dụng không gian mạng để đăng thông tin độc hại nhằm mục đích:", "options": [ "Bảo tồn lưu giữ giá trị văn hóa", "Ngăn chặn, làm giảm tội phạm", "Ghi nhận lịch sử, truyền bá tư tưởng", "Xuyên tạc lịch sử, phủ nhận thành quả cách mạng" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "An toàn thông tin mạng là:", "options": [ "Sự bảo vệ thông tin, hệ thống thông tin mạng", "Bảo vệ hệ thống thông tin", "Bảo vệ nội dung truyền tin", "Bảo vệ phương tiện truyền tin" ], "correctOption": "1", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Năm 2018, thiệt hại do virut máy tính gây ra đối với người dùng Việt Nam ước tính là:", "options": [ "14.900 tỷ đồng", "15.000 tỷ đồng", "14.800 tỷ đồng", "15.900 tỷ đồng" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Chủ thể thông tin cá nhân là:", "options": [ "Người được thu thập thông tin cá nhân đó", "Người được kiểm tra thông tin cá nhân đó", "Người quản lý thông tin cá nhân đó", "Người được xác định từ thông tin cá nhân đó" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Tin giả là:", "options": [ "Những thông tin thật, mang tính giật gân, được phát tán dưới vỏ bọc tin tức", "Những thông tin sai sự thật, mang tính tuyên truyền, được phát tán dưới vỏ bọc tin quảng cáo", "Những thông tin sai sự thật, được phát tán dưới vỏ bọc tin tức", "Những thông tin sai sự thật, mang tính giật gân, được phát tán dưới vỏ bọc tin tức" ], "correctOption": "4", "difficulty": "easy", "explanation": "", "optionCount": 4 },
+        { "question": "Nghị định 15/2019/NĐ-CP quy định mức phạt tiền đối với hành vi gửi hoặc phát tán thư điện tử rác, tin nhắn rác, phần mềm độc hại là:", "options": [ "85 triệu đồng", "80 triệu đồng", "95 triệu đồng", "90 triệu đồng" ], "correctOption": "2", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Thông tin trên không gian mạng có nội dung kích động gây bạo loạn, phá rối an ninh, gây rối trật tự công cộng:", "options": [ "Kêu gọi, vận động, xúi giục, đe dọa, gây chia rẽ, tiến hành hoạt động vũ trang hoặc dùng bạo lựcnhằm chống chính quyền nhân dân", "Chiến tranh tâm lý, kích động chiến tranh xâm lược, chia rẽ, gây thù hận giữa các dân tộc, tôn giáo và nhân dân các nước", "Tuyên truyền xuyên tạc, phỉ báng chính quyền nhân dân.", "Thông tin bịa đặt, sai sự thật xâm phạm danh dự, uy tín, nhân phẩm hoặc gây thiệt hại đến quyền và lợi ích hợp pháp của cơ quan, tổ chức, cá nhân khác" ], "correctOption": "1", "difficulty": "medium", "explanation": "", "optionCount": 4 },
+        { "question": "Không gian mạng quốc gia là:", "options": [ "Không gian mạng do Chính phủ xác lập và kiểm soát", "Không gian mạng do Chính phủ xác lập, quản lý và kiểm soát", "Không gian mạng do Chính phủ quản lý và kiểm soát", "Không gian mạng do Chính phủ xây dựng, quản lý và kiểm soát" ], "correctOption": "2", "difficulty": "easy", "explanation": "", "optionCount": 4 }
+      ];
+      // Cấu trúc thư mục khởi tạo
+      const initialFolders = [
+        { id: "onluyen-hp2-folder-id", name: "Bài tập ôn luyện", parentId: null, questions: on_luyen_questions },
+        { id: "onluyen-2-folder-id", name: "Bài tập ôn luyện 2", parentId: null, questions: on_luyen_2_questions },
+        { id: "bt5a-moi-folder-id", name: "Bài tập 5A (Mới)", parentId: null, questions: bt5a_moi_questions },
+		{ id: "bt5b-folder-id", name: "Bài tập 5B", parentId: null, questions: bt5b_questions },
+		{ id: "bt6-folder-id", name: "Bài tập 6", parentId: null, questions: bt6_questions }
+      ];
+
+      // --- KẾT THÚC PHẦN DỮ LIỆU TÍCH HỢP ---
+
+
+      // Tải dữ liệu từ localStorage
+      folders = JSON.parse(localStorage.getItem("folders")) || [];
+      let dataWasAdded = false;
+
+      // Kiểm tra và thêm dữ liệu khởi tạo nếu chưa có
+      initialFolders.forEach(initialFolder => {
+        const folderExists = folders.some(f => f.id === initialFolder.id);
+        if (!folderExists) {
+          folders.push(initialFolder);
+          dataWasAdded = true;
+        }
+      });
+      
+      // Nếu có dữ liệu mới được thêm, lưu lại vào localStorage
+      if (dataWasAdded) {
+        localStorage.setItem("folders", JSON.stringify(folders));
+      }
+
+      // Tiếp tục các bước khởi tạo như cũ
+      currentFolderId = folders.find(f => f.parentId === null)?.id || null;
+      switchTab("folder");
+    }
+
+    document.addEventListener('keydown', function(event) {
+      const quizContent = document.getElementById('quizContent');
+      const isModalOpen = !!document.querySelector('.modal-backdrop:not(.hidden)');
+      if (quizContent.classList.contains('hidden') || isModalOpen) {
+        return;
+      }
+      const keysToPreventDefault = ['Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'r', 'a', 'b', 'c', 'd'];
+      if (keysToPreventDefault.includes(event.key.toLowerCase())) {
+        event.preventDefault();
+      }
+      switch (event.key.toLowerCase()) {
+        case 'enter':
+          if (!document.getElementById('submitAnswer').classList.contains('hidden')) {
+            submitAnswer();
+          }
+          break;
+        case 'arrowright':
+          if (currentQuestionIndex < shuffledQuizQuestions.length - 1) {
+            goToQuestion(currentQuestionIndex + 1);
+          }
+          break;
+        case 'arrowleft':
+          if (currentQuestionIndex > 0) {
+            goToQuestion(currentQuestionIndex - 1);
+          }
+          break;
+        case 'arrowdown': {
+          const columns = getGridColumnCount();
+          const newIndex = currentQuestionIndex + columns;
+          if (newIndex < shuffledQuizQuestions.length) {
+            goToQuestion(newIndex);
+          }
+          break;
+        }
+        case 'arrowup': {
+          const columns = getGridColumnCount();
+          const newIndex = currentQuestionIndex - columns;
+          if (newIndex >= 0) {
+            goToQuestion(newIndex);
+          }
+          break;
+        }
+        case 'r':
+          if (!document.getElementById('retryQuestion').classList.contains('hidden')) {
+            retryQuestion();
+          }
+          break;
+        case 'a':
+          selectAnswer('1');
+          break;
+        case 'b':
+          selectAnswer('2');
+          break;
+        case 'c':
+          selectAnswer('3');
+          break;
+        case 'd':
+          selectAnswer('4');
+          break;
+      }
+    });
+
+    window.onload = initialize;
+	
+	</script>
+</body>
+</html>
